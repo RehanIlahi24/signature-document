@@ -47,7 +47,7 @@
                                     <td>{{ us.username }}</td>
                                     <td>{{ us.first_name }}</td>
                                     <td>{{ us.last_name }}</td>
-                                    <td><img src="{{ us.passport_image.url }}" width="100" alt=""></td>
+                                    <td>{% if us.passport_image %}<img src="{{ us.passport_image.url }}" width="100" alt="">{% else %} <p>None</p>{% endif %} </td>
                                     <td>{{ us.is_active }}</td>
                                     <td>
                                       <div class="d-flex ">

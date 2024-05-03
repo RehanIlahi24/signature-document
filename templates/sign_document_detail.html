@@ -29,8 +29,15 @@
                 </div>
 
                 <div class="col-lg-7 offset-lg-1">
-                  <embed src="{{doc_ob.document_file.file.url}}#toolbar=0" class="mt-5 mt-lg-0 w-100"
-                  height="400px" type="application/pdf"/>
+                  {% comment %} <embed src="{{doc_ob.document_file.file.url}}#toolbar=0" class="mt-5 mt-lg-0 w-100"
+                  height="400px" type="application/pdf"/> {% endcomment %}
+                  {% comment %} {% if doc_ob.document_file.file.url|lower|endswith:'.pdf' %} {% endcomment %}
+                    <embed src="{{ doc_ob.document_file.file.url }}#toolbar=0" class="mt-5 mt-lg-0 w-100" height="400px" type="application/pdf"/>
+                  {% comment %} {% elif doc_ob.document_file.file.url|lower|endswith:'.docx' or doc_ob.document_file.file.url|lower|endswith:'.doc' %} {% endcomment %}
+                    {% comment %} <iframe src="https://view.officeapps.live.com/op/view.aspx?src={{ doc_ob.document_file.file.url }}" class="mt-5 mt-lg-0 w-100" height="400px"></iframe> {% endcomment %}
+                  {% comment %} {% else %} {% endcomment %}
+                    {% comment %} <p>This document format is not supported.</p> {% endcomment %}
+                  {% comment %} {% endif %} {% endcomment %}
                 </div>
 
               </div>

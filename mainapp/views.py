@@ -474,5 +474,21 @@ def signed_document_detail(request, id):
     document_ob = Document.objects.get(id=id)
     return render(request, 'signed_document_detail.html', {'doc' : document_ob})
 
-# print(User.objects.values())
+# print(Document.objects.prefetch_related('document_file').values('id', 'document_file__id' ,'document_file__file'))
 # User.objects.filter(is_superuser=False).delete()
+
+# doc = Document.objects.get(id=2)
+# convert(doc.document_file.file.path, "output1.pdf")
+
+# import win32com.client
+
+# def doc_to_pdf(input_file, output_file):
+#     word = win32com.client.Dispatch("Word.Application")
+#     doc = word.Documents.Open(input_file)
+#     doc.SaveAs(output_file, FileFormat=17)
+#     doc.Close()
+#     word.Quit()
+
+# input_file = doc.document_file.file.path
+# output_file = "output11.pdf"
+# doc_to_pdf(input_file, output_file)
