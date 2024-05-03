@@ -1,0 +1,117 @@
+{% load static %}
+{% include "includes/head.html" %}
+
+    <div class="container-xxl">
+      <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+          <!-- Login -->
+          <div class="card col-sm-6 offset-sm-3">
+            <div class="card-body">
+             <!-- Logo -->
+             <div class="app-brand justify-content-center mb-4 mt-2">
+              <a href="{% url "index" %}" class="app-brand-link gap-2">
+                <span class="app-brand-logo ">
+                  <img src="/media/warwick-logo.PNG" width="100" class="img-fluid" alt="">
+                </span> 
+              </a>
+            </div>
+            <!-- /Logo -->
+            <!-- /Logo -->
+            <h4 class="mb-1 pt-2">Welcome! 👋</h4>
+            <p class="mb-4">Please sign-in to your account and start the adventure</p>
+              <form id="formAuthentication" class="mb-3" action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label  class="form-label">Username</label>
+                  <input
+                    required
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    autofocus
+                  />
+                </div>
+                <div class="mb-3">
+                  <label  class="form-label">First Name</label>
+                  <input
+                  required
+                    type="text"
+                    class="form-control"
+                    name="first_name"
+                    placeholder="Enter your First Name"
+                    autofocus
+                  />
+                </div>
+                <div class="mb-3">
+                  <label  class="form-label">Last Name</label>
+                  <input
+                  required
+                  type="text"
+                  class="form-control"
+                  name="last_name"
+                  placeholder="Enter your Last Name"
+                  autofocus
+                />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Passport Image</label>
+                  <input
+                    required
+                    type="file"
+                    class="form-control"
+                    id="passport_image"
+                    name="passport_image"
+                    accept="image/*" 
+                    autofocus
+                  />
+                </div>
+                <div class="mb-3 form-password-toggle">
+                  <div class="d-flex justify-content-between">
+                    <label class="form-label" for="password">Password</label>
+                  </div>
+                  <div class="input-group input-group-merge">
+                    <input
+                    required
+                      type="password"
+                      id="password1"
+                      class="form-control"
+                      name="password1"
+                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                    />
+                  </div>
+                <div class="mb-3 mt-3 form-password-toggle">
+                  <div class="d-flex justify-content-between">
+                    <label class="form-label" for="password">Confirm Password</label>
+                  </div>
+                  <div class="input-group input-group-merge">
+                    <input
+                    required
+                      type="password"
+                      id="password"
+                      class="form-control"
+                      name="password2"
+                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <button class="btn btn-primary d-grid w-100" type="submit">Sign up</button>
+                </div>
+              </form>
+
+              <p class="text-center">
+                <span>Already have an account?</span>
+                <a href="{% url "login" %}">
+                  <span>Sign in here</span>
+                </a>
+              </p>
+            </div>
+          </div>
+          <!-- /Register -->
+        </div>
+      </div>
+    </div>
+    {% include "includes/messages.html" %}
+{% include "includes/footer.html" %}

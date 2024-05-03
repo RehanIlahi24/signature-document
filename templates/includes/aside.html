@@ -1,0 +1,59 @@
+{% load static %}
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+  <div class="app-brand demo">
+    <a href="{% url "index" %}" class="app-brand-link gap-2">
+      <span class="app-brand-logo">
+        {% comment %} <img src="/media/warwick-logo.PNG" width="100" class="img-fluid" alt=""> {% endcomment %}
+      </span>
+    </a>
+
+    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+      <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
+      <i class="ti ti-x d-block d-xl-none ti-sm align-middle"></i>
+    </a>
+  </div>
+  
+  <div class="menu-inner-shadow"></div>
+  <ul class="menu-inner py-1">
+    <li class="menu-item {{active}}">
+      <a href="{% url "index" %}" class="menu-link">
+        <i class="menu-icon tf-icons ti ti-home"></i>
+        <div>Dashboard</div>
+      </a>
+    </li>
+    {% if request.user.is_superuser %}
+    <li class="menu-item {{active1}} ">
+      <a href="{% url "user_view" %}" class="menu-link">
+        <i class="menu-icon tf-icons ti ti-crown"></i>
+        <div data-i18n="user">Users</div>
+      </a>
+    </li>
+    <li class="menu-item {{active2}} ">
+      <a href="{% url "document_files" %}" class="menu-link">
+        <i class="menu-icon tf-icons ti ti-file"></i>
+        <div data-i18n="user">Document Files</div>
+      </a>
+    </li>
+    <li class="menu-item {{active3}} ">
+      <a href="{% url "asign_document" %}" class="menu-link">
+        <i class="menu-icon tf-icons ti ti-file"></i>
+        <div data-i18n="user">Asign Document</div>
+      </a>
+    </li>
+    {% endif %} 
+    {% if not request.user.is_superuser %}
+    <li class="menu-item {{active4}}">
+      <a href="{% url "sign_document" %}" class="menu-link">
+        <i class="menu-icon tf-icons ti ti-file"></i>
+        <div>Sign Document</div>
+      </a>
+    </li>
+    {% endif %}
+    <li class="menu-item {{active5}} ">
+      <a href="{% url "signed_document" %}" class="menu-link">
+        <i class="menu-icon tf-icons ti ti-file"></i>
+        <div data-i18n="user">Signed Document</div>
+      </a>
+    </li>
+  </ul>
+</aside>

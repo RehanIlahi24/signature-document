@@ -1,0 +1,115 @@
+{% include 'includes/head.html' %}
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+        {% include "includes/aside.html" %}
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+          {% include "includes/navbar.html" %}
+
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row invoice-add">
+                <!-- Invoice Add-->
+                <div class="col-lg-12 col-12 mb-lg-0 mb-4">
+                  <div class="card invoice-preview-card">
+                    <div class="card-body">
+                          <div class="card-datatable table-responsive pt-0">
+                            <div class="container mt-3 mb-3">
+                                <form id="formAuthentication" class="mb-3" action="" method="POST">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="mb-3">
+                                              <label for="email" class="form-label">Username</label>
+                                              <input
+                                                type="text"
+                                                class="form-control"
+                                                id="username"
+                                                value={{usr.username}}
+                                                name="username"
+                                                placeholder="Enter your username"
+                                                autofocus
+                                              />
+                                            </div>                    
+                                            <div class="mb-3">
+                                              <label for="email" class="form-label">Last Name</label>
+                                              <input
+                                                type="text"
+                                                class="form-control"
+                                                value={{usr.last_name}}
+                                                id="last_name"
+                                                name="last_name"
+                                                placeholder="Enter your last name"
+                                                autofocus
+                                              />
+                                            </div>
+                                            <div class="mb-3 form-check form-switch">
+                                                <input class="form-check-input mt-3 mb-2" type="checkbox" role="switch" id="is_active" name="is_active" {% if usr.is_active %}checked{% endif %}>
+                                                <label class="form-check-label mt-3 mb-2" for="is_approved" >Is Active</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="mb-3">
+                                              <label for="email" class="form-label">First Name</label>
+                                              <input
+                                                type="text"
+                                                class="form-control"
+                                                id="first_name"
+                                                name="first_name"
+                                                value={{usr.first_name}}
+                                                placeholder="Enter your first name"
+                                                autofocus
+                                              />
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="image">Passport Image</label>
+                                              <input type="file" accept="image/*"  class="form-control-file mt-4 mb-2" id="image" name="image">
+                                              {% if usr.passport_image %}
+                                              <img src="{{usr.passport_image.url}}" width="100" alt="" class="mb-2">
+                                              {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                      <button class="btn btn-primary d-grid w-100" type="submit">Update User</button>
+                                    </div>
+                                  </form>
+                            </div>  
+                          </div>
+                        </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / Content -->
+
+            <!-- Footer -->
+            {% include "includes/footer_aside.html" %}
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+
+      <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+      <div class="drag-target"></div>
+    </div>
+    <!-- / Layout wrapper -->
+    {% include 'includes/messages.html' %}
+{% include 'includes/footer.html' %}

@@ -1,0 +1,112 @@
+{% include 'includes/head.html' %}
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+        {% include "includes/aside.html" %}
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+          {% include "includes/navbar.html" %}
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+
+            <!-- Content -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+
+                <!-- Invoice Add-->
+                <div class="col-lg-12 col-12 mb-lg-0 mb-4">
+                    <div class="card invoice-preview-card">
+                      <div class="card-body">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                              <h5 class="card-header">Asigned Document</h5>
+                            </div>
+                            <div class="card-datatable table-responsive pt-0">
+                              <table class="datatables-basic1 table">
+                                  <thead>
+                                    <tr>
+                                      <th></th>
+                                      <th>Document</th>
+                                      <th>Is Signed</th>
+                                    </tr>
+                                  </thead>
+                                  {% if doc_ob %}
+                                  {% for doc in doc_ob %}
+                                  <tr>
+                                      <th></th>
+                                      <td><a href="{% url "sign_document_detail" doc.id %}">{{ doc.document_file.file }}</a></td>
+                                      <td>{{ doc.is_signed }}</td>
+                                  </tr>
+                                  {% endfor %}
+                                  {% endif %}
+                              </table>
+  
+                              {% if doc_ob.paginator.num_pages > 1 %}
+                              <nav aria-label="Page navigation" class="float-end mt-3">
+                                <ul class="pagination">
+                                    {% if doc_ob.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link waves-effect" href="?page=1"><i class="ti ti-chevrons-left ti-xs"></i></a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link waves-effect" href="?page={{ doc_ob.previous_page_number }}">previous</a>
+                                        </li>
+                                    {% endif %}
+                            
+                                    {% for num in doc_ob.paginator.page_range %}
+                                        {% if doc_ob.number == num %}
+                                            <li class="page-item active">
+                                                <a class="page-link waves-effect" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% elif num > doc_ob.number|add:"-3" and num < doc_ob.number|add:"3" %}
+                                            <li class="page-item">
+                                                <a class="page-link waves-effect" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                            
+                                    {% if doc_ob.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link waves-effect" href="?page={{ doc_ob.next_page_number }}">next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link waves-effect" href="?page={{ doc_ob.paginator.num_pages }}"><i class="ti ti-chevrons-right ti-xs"></i></a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              </div>
+            </div>
+            <!--/ Content -->
+
+            <!-- Footer -->
+            {% include "includes/footer_aside.html" %}
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!--/ Content wrapper -->
+        </div>
+
+        <!--/ Layout container -->
+      </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+
+    <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+    <div class="drag-target"></div>     
+    <!--/ Layout wrapper -->
+{% include "includes/messages.html" %}
+{% include "includes/footer.html" %}

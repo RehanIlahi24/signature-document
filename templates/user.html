@@ -1,0 +1,239 @@
+{% include 'includes/head.html' %}
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+        {% include "includes/aside.html" %}
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+          {% include "includes/navbar.html" %}
+
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row invoice-add">
+                <!-- Invoice Add-->
+                <div class="col-lg-12 col-12 mb-lg-0 mb-4">
+                  <div class="card invoice-preview-card">
+                    <div class="card-body">
+                          <div class="card-header d-flex align-items-center justify-content-between">
+                            <h5 class="card-header">Users</h5>
+                            <button class="float-end btn btn-primary" data-bs-toggle="modal" data-bs-target="#new-user" >Add New User</button>
+                          </div>
+                          <div class="card-datatable table-responsive pt-0">
+                            <table class="datatables-basic1 table">
+                                <thead>
+                                  <tr>
+                                    <th></th>
+                                    <th>UserName</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Passport Image</th>
+                                    <th>Is Active</th>
+                                    <th>Action</th>
+                                  </tr>
+                                </thead>
+                                {% if users %}
+                                {% for us in users %}
+                                <tr>
+                                    <th></th>
+                                    <td>{{ us.username }}</td>
+                                    <td>{{ us.first_name }}</td>
+                                    <td>{{ us.last_name }}</td>
+                                    <td><img src="{{ us.passport_image.url }}" width="100" alt=""></td>
+                                    <td>{{ us.is_active }}</td>
+                                    <td>
+                                      <div class="d-flex ">
+                                        <a href="{% url "user_detail" us.id %}" class="btn btn-primary me-2"><i class="menu-icon tf-icons ti ti-pencil" aria-hidden="true"></i></a>
+                                        <button data-bs-toggle="modal" data-bs-target="#delete_user" onclick="delete_user(this)" class="btn btn-danger" data-id="{{ us.id }}">
+                                          <i class="menu-icon tf-icons ti ti-trash" aria-hidden="true"></i>
+                                        </button>
+                                      </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </table>
+
+                            {% if users.paginator.num_pages > 1 %}
+                            <nav aria-label="Page navigation" class="float-end mt-3">
+                              <ul class="pagination">
+                                  {% if users.has_previous %}
+                                      <li class="page-item">
+                                          <a class="page-link waves-effect" href="?page=1"><i class="ti ti-chevrons-left ti-xs"></i></a>
+                                      </li>
+                                      <li class="page-item">
+                                          <a class="page-link waves-effect" href="?page={{ users.previous_page_number }}">previous</a>
+                                      </li>
+                                  {% endif %}
+                          
+                                  {% for num in users.paginator.page_range %}
+                                      {% if users.number == num %}
+                                          <li class="page-item active">
+                                              <a class="page-link waves-effect" href="?page={{ num }}">{{ num }}</a>
+                                          </li>
+                                      {% elif num > users.number|add:"-3" and num < users.number|add:"3" %}
+                                          <li class="page-item">
+                                              <a class="page-link waves-effect" href="?page={{ num }}">{{ num }}</a>
+                                          </li>
+                                      {% endif %}
+                                  {% endfor %}
+                          
+                                  {% if users.has_next %}
+                                      <li class="page-item">
+                                          <a class="page-link waves-effect" href="?page={{ users.next_page_number }}">next</a>
+                                      </li>
+                                      <li class="page-item">
+                                          <a class="page-link waves-effect" href="?page={{ users.paginator.num_pages }}"><i class="ti ti-chevrons-right ti-xs"></i></a>
+                                      </li>
+                                  {% endif %}
+                              </ul>
+                          </nav>
+                          {% endif %}
+
+                          <div class="modal fade" id="delete_user" tabindex="-1" style="display: none;" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                              <div class="modal-content">
+                                <div class="modal-body">
+                                  <h3 class="text-center text-dark">
+                                    Are you sure you want to delete it!
+                                  </h3>
+                                </div>
+                                <div class="modal-footer d-flex justify-content-center">
+                                  <button type="button" class="btn btn-dark text-white waves-effect mx-2" data-bs-dismiss="modal">
+                                    No
+                                  </button>
+                                  <form action="" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="" id="id_for_delete_c">
+                                    <input type="hidden" name="type" value="delete">
+                                    <button type="submit" class="btn btn-primary waves-effect waves-light mx-2">Yes</button>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                                <div class="modal fade bd-example-modal-lg" id="new-user" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-md" role="document">
+                                        <div class="modal-content">
+                                            <div class="container mt-3 mb-3">
+                                                <form id="" class="mb-3" action="" method="POST">
+                                                    {% csrf_token %}
+                                                    <h3 class="text-center mt-2">Add New User</h3>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                              <label for="email" class="form-label">Username</label>
+                                                              <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="username"
+                                                                name="username"
+                                                                placeholder="Enter your username"
+                                                                autofocus
+                                                              />
+                                                            </div>                   
+                                                            <div class="mb-3">
+                                                                  <label for="email" class="form-label">First Name</label>
+                                                                  <input
+                                                                    type="text"
+                                                                    class="form-control"
+                                                                    id="first_name"
+                                                                    name="first_name"
+                                                                    placeholder="Enter your first name"
+                                                                    autofocus
+                                                                  />
+                                                            </div>
+                                                            <div class="mb-3">
+                                                              <label for="email" class="form-label">Last Name</label>
+                                                              <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="last_name"
+                                                                name="last_name"
+                                                                placeholder="Enter your last name"
+                                                                autofocus
+                                                              />
+                                                            </div>
+                                                            <div class="mb-3 form-password-toggle">
+                                                              <div class="d-flex justify-content-between">
+                                                                <label class="form-label" for="password">Password</label>
+                                                              </div>
+                                                              <div class="input-group input-group-merge">
+                                                                <input
+                                                                  type="password"
+                                                                  id="password"
+                                                                  class="form-control"
+                                                                  name="password"
+                                                                  placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                                                  aria-describedby="password"
+                                                                />
+                                                              </div>
+                                                            </div>
+                                                            <div class="mb-3 form-password-toggle">
+                                                              <div class="d-flex justify-content-between">
+                                                                <label class="form-label" for="password">Confirm Password</label>
+                                                              </div>
+                                                              <div class="input-group input-group-merge">
+                                                                <input
+                                                                  type="password"
+                                                                  id="password2"
+                                                                  class="form-control"
+                                                                  name="password2"
+                                                                  placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                                                  aria-describedby="password2"
+                                                                />
+                                                              </div>
+                                                          </div>
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" name="type" value="new-user">
+                                                    <div class="mb-3">
+                                                      <button class="btn btn-primary d-grid w-100" type="submit">Create new user</button>
+                                                    </div>
+                                                </form>
+                                            </div>  
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / Content -->
+
+            <!-- Footer -->
+            {% include "includes/footer_aside.html" %}
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+
+      <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+      <div class="drag-target"></div>
+    </div>
+    <script>
+      function delete_user(button) {
+          var id = button.getAttribute('data-id');
+          document.getElementById("id_for_delete_c").value = id;
+      }
+    </script>  
+    <!-- / Layout wrapper -->
+    {% include 'includes/messages.html' %}
+{% include 'includes/footer.html' %}

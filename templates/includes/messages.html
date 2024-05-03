@@ -1,0 +1,21 @@
+<!-- JavaScript -->
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success'%}
+            alertify.set('notifier','position', 'top-right');
+            alertify.success('{{message}}');
+        {% elif message.tags == 'info' %}
+            alertify.set('notifier','position', 'top-right');
+            alertify.info('{{message}}');
+        {% elif message.tags == 'warning' %}
+            alertify.set('notifier','position', 'top-right');
+            alertify.warning('{{message}}');
+        {% elif message.tags == 'error' %}
+            alertify.set('notifier','position', 'top-right');
+            alertify.error('{{message}}');
+        {% endif %} 
+        {% endfor %}
+    {% endif %}
+</script>
