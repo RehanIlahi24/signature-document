@@ -14,10 +14,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
+from tempfile import NamedTemporaryFile
 import base64
 from datetime import time
 from reportlab.lib.units import inch
 from docx2pdf import convert
+import os
 # import aspose.words as aw
 # Create your views here.
 
@@ -139,6 +141,7 @@ def user_view(request):
                     username = data.get('username')
                     first_name = data.get('first_name')
                     last_name = data.get('last_name')
+                    image = request.FILES.get('image')
                     password = data.get('password')
                     password2 = data.get('password2')
                     existing_user = User.objects.filter(username=username).first()
@@ -148,7 +151,7 @@ def user_view(request):
                     if password == password2:
                         uid = uuid.uuid1()
                         hashed_password = make_password(password)
-                        User.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, uid=uid)
+                        User.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, passport_image=image, uid=uid)
                         messages.success(request,"Successfully Created User!")
                         return redirect('user_view')
                     else:
@@ -174,6 +177,7 @@ def user_detail(request, id):
                 first_name = data.get('first_name')
                 last_name = data.get('last_name')
                 image = request.FILES.get('image')
+                print(image, 'image')
                 is_active = data.get('is_active') == 'on'
                 existing_user = User.objects.filter(username=username).exclude(id=usr.id).first()
                 if existing_user:
@@ -196,6 +200,7 @@ def user_detail(request, id):
     #         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
     #         return redirect('user_view')
 
+@login_required()
 def document_files(request):
     if request.user.is_superuser:
         docs = DocumentFile.objects.all()
@@ -216,12 +221,40 @@ def document_files(request):
                     document_file = DocumentFile(file=document)  
                     document_file.save()
                     messages.success(request, "Successfully Add File!")
+                # if document.name.endswith('.docx'):
+                #     with NamedTemporaryFile(delete=False, suffix='.docx') as temp_docx_file:
+                #         # Write the content of the uploaded file to the temporary file
+                #         for chunk in document.chunks():
+                #             temp_docx_file.write(chunk)
+                #         # Get the file path of the temporary file
+                #         temp_docx_path = temp_docx_file.name
+                #     pdf_filename = f'{document.name[:-5]}.pdf'
+                #     print(pdf_filename)
+                #     pdf_path = convert(temp_docx_path, pdf_filename)
+                #     # After conversion, you can remove the temporary DOCX file
+                #     print("pdf_path:", pdf_path)
+                #     os.remove(temp_docx_path)
+                #     if pdf_path:
+                #         print('hello')
+                # # Check if the PDF file exists in the database
+                #         if DocumentFile.objects.filter(file=pdf_filename).exists():
+                #             messages.error(request, "File already exists!")
+                #         else:
+                #             # Save the PDF file to the database
+                #             with open(pdf_path, 'rb') as pdf_file:
+                #                 document_file = DocumentFile()
+                    #             document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
+                    #             document_file.save()
+                    #             messages.success(request, "Successfully Add File!")
+                    # else:
+                    #     print('moye moye')               
                 return redirect('document_files')
         return render(request, 'document_files.html', {'active2' : 'active', 'docs' : docs})
     else:
         messages.error(request,"You are not superuser!")
         return redirect('index')
     
+@login_required()
 def asign_document(request):
     if request.user.is_superuser:
         docs = DocumentFile.objects.all()
@@ -284,11 +317,13 @@ def asign_document_detail(request, id):
             messages.error(request,"You are not superuser!")
             return redirect('index')
 
+@login_required()
 def sign_document(request):
     if not request.user.is_superuser:
         doc_ob = Document.objects.filter(user=request.user, is_signed=False).order_by('-created_at')
         return render(request, 'sign_document.html', {'active4' : 'active', 'doc_ob' : doc_ob})
 
+@login_required()
 def sign_document_detail(request, id=None):
     document_ob = Document.objects.get(id=id)
     if request.method == 'POST':
@@ -461,6 +496,7 @@ def sign_document_detail(request, id=None):
         return redirect('sign_document')
     return render(request, 'sign_document_detail.html', {'active4' : 'active', 'doc_ob' : document_ob})
 
+@login_required()
 def signed_document(request):
     if request.user.is_superuser:
         document_ob = Document.objects.filter(is_signed=True).order_by('-created_at')
@@ -468,6 +504,7 @@ def signed_document(request):
         document_ob = Document.objects.filter(is_signed=True, user=request.user).order_by('-created_at')
     return render(request, 'signed_documents.html', {'active5' : 'active', 'doc_ob' : document_ob})
 
+@login_required()
 def signed_document_detail(request, id):
     if not request.user.is_superuser:
         document_ob = Document.objects.filter(is_signed=True, id=id, user=request.user)
@@ -478,8 +515,8 @@ def signed_document_detail(request, id):
 # User.objects.filter(is_superuser=False).delete()
 
 # doc = Document.objects.get(id=2)
-# convert(doc.document_file.file.path, "output1.pdf")
-
+# pdf_path = convert(doc.document_file.file.path, "output1.pdf")
+# print('path : ', pdf_path)
 # import win32com.client
 
 # def doc_to_pdf(input_file, output_file):
