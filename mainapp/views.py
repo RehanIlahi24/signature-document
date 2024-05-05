@@ -198,20 +198,20 @@ def user_detail(request, id):
             messages.warning(request, 'Request is not responed please check your internet connection and try again!')
             return redirect('user_view')
 
-def doc2pdf_linux(doc):
+def doc2pdf_linux(doc, filename):
     """
     Convert a doc/docx document to pdf format (Linux only, requires libreoffice)
     :param doc: Path to document
     :return: Path to the converted PDF file, or None if conversion fails
     """
-    pdf_path = f"{os.path.splitext(doc)[0]}.pdf"
+    file_name = os.path.join(os.path.dirname(doc), filename)
     cmd = f"/usr/bin/libreoffice --convert-to pdf --outdir {os.path.dirname(doc)} {doc}"
     try:
         subprocess.run(cmd, shell=True, check=True)
-        return pdf_path
+        return file_name
     except subprocess.CalledProcessError as e:
         print(f"Error converting document: {e}")
-        return None
+        return None 
 
 @login_required()
 def document_files(request):
@@ -238,9 +238,8 @@ def document_files(request):
                                 temp_docx_file.write(chunk)
                             temp_docx_path = temp_docx_file.name
                         # try:
-                        pdf_path = doc2pdf_linux(temp_docx_path)  # Convert DOCX to PDF using the linux function
-                        
-                        # Save the PDF file to your model
+                        pdf_filename = f'{document.name[:-5]}.pdf'
+                        pdf_path = doc2pdf_linux(temp_docx_path, pdf_filename)
                         pdf_filename = os.path.basename(pdf_path)
                         if not DocumentFile.objects.filter(file=pdf_filename).exists():
                             with open(pdf_path, 'rb') as pdf_file:
