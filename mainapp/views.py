@@ -18,7 +18,6 @@ from django.core.files.base import ContentFile
 from tempfile import NamedTemporaryFile
 import base64
 import subprocess
-from docx2pdf import convert
 import os
 # Create your views here.
 
@@ -199,11 +198,6 @@ def user_detail(request, id):
             return redirect('user_view')
 
 def doc2pdf_linux(doc):
-    """
-    Convert a doc/docx document to pdf format (Linux only, requires libreoffice)
-    :param doc: Path to document
-    :return: Path to the converted PDF file, or None if conversion fails
-    """
     pdf_path = f"{os.path.splitext(doc)[0]}.pdf"
     cmd = f"/usr/bin/libreoffice --convert-to pdf --outdir {os.path.dirname(doc)} {doc}"
     try:
@@ -215,7 +209,7 @@ def doc2pdf_linux(doc):
 
 @login_required()
 def document_files(request):
-    # try:
+    try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
@@ -248,20 +242,6 @@ def document_files(request):
                                 document_file.file.save(new_name, ContentFile(pdf_file.read()), save=True)
                                 document_file.save()
                                 messages.success(request, "Successfully added file!")
-                        # except Exception as e:
-                        #     messages.error(request, f"Error converting document: {e}")
-                        # pdf_filename = f'{document.name[:-5]}.pdf'
-                        # convert(temp_docx_path, pdf_filename)
-                        # os.remove(temp_docx_path)
-                        # if pdf_filename:
-                        #     if DocumentFile.objects.filter(file=pdf_filename).exists():
-                        #         messages.error(request, "File already exists!")
-                        #     else:
-                        #         with open(pdf_filename, 'rb') as pdf_file:
-                        #             document_file = DocumentFile()
-                        #             document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
-                        #             document_file.save()
-                        #             messages.success(request, "Successfully Add File!")
                     else:
                         document_file = DocumentFile(file=document)  
                         document_file.save()
@@ -271,9 +251,9 @@ def document_files(request):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')    
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')    
 
 @login_required()
 def asign_document(request):
