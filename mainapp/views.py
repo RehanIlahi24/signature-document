@@ -200,15 +200,18 @@ def user_detail(request, id):
 
 def doc2pdf_linux(doc):
     """
-    convert a doc/docx document to pdf format (linux only, requires libreoffice)
-    :param doc: path to document
+    Convert a doc/docx document to pdf format (Linux only, requires libreoffice)
+    :param doc: Path to document
+    :return: Path to the converted PDF file, or None if conversion fails
     """
-    cmd = 'libreoffice --convert-to pdf'.split() + [doc]
-    p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    p.wait(timeout=10)
-    stdout, stderr = p.communicate()
-    if stderr:
-        raise subprocess.SubprocessError(stderr)
+    pdf_path = f"{os.path.splitext(doc)[0]}.pdf"
+    cmd = f"/usr/bin/libreoffice --convert-to pdf --outdir {os.path.dirname(doc)} {doc}"
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+        return pdf_path
+    except subprocess.CalledProcessError as e:
+        print(f"Error converting document: {e}")
+        return None
 
 @login_required()
 def document_files(request):
