@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import *
 from .utils import *
-from django.http import JsonResponse
+from django.http import HttpResponse
 import uuid
-from reportlab.lib import colors
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
-from PyPDF2 import PdfReader, PdfWriter, PdfMerger
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
+import PyPDF2
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import landscape
 from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -16,11 +17,8 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from tempfile import NamedTemporaryFile
 import base64
-from datetime import time
-from reportlab.lib.units import inch
 from docx2pdf import convert
 import os
-# import aspose.words as aw
 # Create your views here.
 
 def get_client_ip_address(request):
@@ -48,7 +46,6 @@ def user_login(request):
         else:
             messages.warning(request,"Incorrect username or password!")
     return render(request,'login.html')
-
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -104,29 +101,29 @@ def user_logout(request):
 
 @login_required()
 def index(request):
-    # try:
-    if request.user.is_superuser:
-        total_users = User.objects.exclude(is_superuser=True).count()
-        verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
-        unverified_users = User.objects.filter(is_active=False, is_superuser=False).count()
-        total_asign_doc = Document.objects.all().count()
-        signed_doc = Document.objects.filter(is_signed=True).count()
-        today_signed_doc = Document.objects.filter(is_signed=True, created_at__date=date.today()).count()
-        return render(request, 'index.html', {'active' : 'active', 'total_users' : total_users, 'verified_users' : verified_users, 'unverified_users' : unverified_users, 'total_asign_doc' : total_asign_doc, 'signed_doc' : signed_doc, 'today_signed_doc' : today_signed_doc})
-    else:
-        today_asign_doc = Document.objects.filter(user=request.user, created_at__date=date.today()).count()
-        today_signed_doc = Document.objects.filter(user=request.user, is_signed=True, created_at__date=date.today()).count()
-        total_signed_doc = Document.objects.filter(user=request.user, is_signed=True).count()
-        return render(request, 'index.html', {'active' : 'active', 'today_asign_doc' : today_asign_doc, 'today_signed_doc' : today_signed_doc, 'total_signed_doc' : total_signed_doc})
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    try:
+        if request.user.is_superuser:
+            total_users = User.objects.exclude(is_superuser=True).count()
+            verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
+            unverified_users = User.objects.filter(is_active=False, is_superuser=False).count()
+            total_asign_doc = Document.objects.all().count()
+            signed_doc = Document.objects.filter(is_signed=True).count()
+            today_signed_doc = Document.objects.filter(is_signed=True, created_at__date=date.today()).count()
+            return render(request, 'index.html', {'active' : 'active', 'total_users' : total_users, 'verified_users' : verified_users, 'unverified_users' : unverified_users, 'total_asign_doc' : total_asign_doc, 'signed_doc' : signed_doc, 'today_signed_doc' : today_signed_doc})
+        else:
+            today_asign_doc = Document.objects.filter(user=request.user, created_at__date=date.today()).count()
+            today_signed_doc = Document.objects.filter(user=request.user, is_signed=True, created_at__date=date.today()).count()
+            total_signed_doc = Document.objects.filter(user=request.user, is_signed=True).count()
+            return render(request, 'index.html', {'active' : 'active', 'today_asign_doc' : today_asign_doc, 'today_signed_doc' : today_signed_doc, 'total_signed_doc' : total_signed_doc})
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
 
 @login_required()
 def user_view(request):
-    # try:
+    try:
         if request.user.is_superuser:
-            users = User.objects.all().exclude(is_superuser=True)
+            users = User.objects.all().exclude(is_superuser=True).order_by('-id')
             users = pagination_custom(request,users)
             if request.method == "POST":
                 data = request.POST
@@ -161,13 +158,13 @@ def user_view(request):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    # except:
-    #         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #         return redirect('index')
+    except:
+            messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+            return redirect('index')
 
 @login_required()
 def user_detail(request, id):
-    # try:
+    try:
         if  request.user.is_superuser:
             users = User.objects.all()
             usr = User.objects.get(id=id)
@@ -196,103 +193,106 @@ def user_detail(request, id):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    # except:
-    #         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #         return redirect('user_view')
+    except:
+            messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+            return redirect('user_view')
 
 @login_required()
 def document_files(request):
-    if request.user.is_superuser:
-        docs = DocumentFile.objects.all()
-        if request.method == "POST":
-            data = request.POST
-            type = data.get('type')
-            if type == 'delete':
-                id = data.get('doc_id')
-                doc_ob = get_object_or_404(DocumentFile, id=id)
-                doc_ob.delete()
-                messages.success(request, 'Successfully Delete File!')
-                return redirect('document_files')
-            if type == 'new-document':
-                document = request.FILES.get('document')
-                if DocumentFile.objects.filter(file=document).exists():
-                    messages.error(request, "File already exists!")
-                else:
-                    document_file = DocumentFile(file=document)  
-                    document_file.save()
-                    messages.success(request, "Successfully Add File!")
-                # if document.name.endswith('.docx'):
-                #     with NamedTemporaryFile(delete=False, suffix='.docx') as temp_docx_file:
-                #         # Write the content of the uploaded file to the temporary file
-                #         for chunk in document.chunks():
-                #             temp_docx_file.write(chunk)
-                #         # Get the file path of the temporary file
-                #         temp_docx_path = temp_docx_file.name
-                #     pdf_filename = f'{document.name[:-5]}.pdf'
-                #     print(pdf_filename)
-                #     pdf_path = convert(temp_docx_path, pdf_filename)
-                #     # After conversion, you can remove the temporary DOCX file
-                #     print("pdf_path:", pdf_path)
-                #     os.remove(temp_docx_path)
-                #     if pdf_path:
-                #         print('hello')
-                # # Check if the PDF file exists in the database
-                #         if DocumentFile.objects.filter(file=pdf_filename).exists():
-                #             messages.error(request, "File already exists!")
-                #         else:
-                #             # Save the PDF file to the database
-                #             with open(pdf_path, 'rb') as pdf_file:
-                #                 document_file = DocumentFile()
-                    #             document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
-                    #             document_file.save()
-                    #             messages.success(request, "Successfully Add File!")
-                    # else:
-                    #     print('moye moye')               
-                return redirect('document_files')
-        return render(request, 'document_files.html', {'active2' : 'active', 'docs' : docs})
-    else:
-        messages.error(request,"You are not superuser!")
+    try:
+        if request.user.is_superuser:
+            signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
+            docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
+            if request.method == "POST":
+                data = request.POST
+                type = data.get('type')
+                if type == 'delete':
+                    id = data.get('doc_id')
+                    doc_ob = get_object_or_404(DocumentFile, id=id)
+                    doc_ob.delete()
+                    messages.success(request, 'Successfully Delete File!')
+                    return redirect('document_files')
+                if type == 'new-document':
+                    document = request.FILES.get('document')
+                    if DocumentFile.objects.filter(file=document).exists():
+                        messages.error(request, "File already exists!")
+                    if document.name.endswith('.docx'):
+                        with NamedTemporaryFile(delete=False, suffix='.docx') as temp_docx_file:
+                            for chunk in document.chunks():
+                                temp_docx_file.write(chunk)
+                            temp_docx_path = temp_docx_file.name
+                        pdf_filename = f'{document.name[:-5]}.pdf'
+                        convert(temp_docx_path, pdf_filename)
+                        os.remove(temp_docx_path)
+                        if pdf_filename:
+                            if DocumentFile.objects.filter(file=pdf_filename).exists():
+                                messages.error(request, "File already exists!")
+                            else:
+                                with open(pdf_filename, 'rb') as pdf_file:
+                                    document_file = DocumentFile()
+                                    document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
+                                    document_file.save()
+                                    messages.success(request, "Successfully Add File!")
+                    else:
+                        document_file = DocumentFile(file=document)  
+                        document_file.save()
+                        messages.success(request, "Successfully Add File!")
+                    return redirect('document_files')
+            return render(request, 'document_files.html', {'active2' : 'active', 'docs' : docs})
+        else:
+            messages.error(request,"You are not superuser!")
+            return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')    
+@login_required()
+def asign_document(request):
+    try:
+        if request.user.is_superuser:
+            signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
+            docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
+            doc_ob = Document.objects.filter(black_list=False).order_by('-created_at')
+            users = User.objects.all().exclude(is_superuser=True)
+            if request.method == "POST":
+                data = request.POST
+                type = data.get('type')
+                if type == 'delete':
+                    id = data.get('doc_id')
+                    doc_ob = Document.objects.get(id=id)
+                    if doc_ob.is_signed == False:
+                        doc_ob.delete()
+                    else:
+                        doc_ob.black_list = True
+                    messages.success(request, 'Successfully Unasign File!')
+                    return redirect('asign_document')
+                if type == 'new-asign':
+                    user_id = data.get('user')
+                    document_id = data.get('document')
+                    
+                    user_ob = User.objects.get(id=user_id)
+                    doc_ob = DocumentFile.objects.get(id=document_id)
+                    
+                    existing_document = Document.objects.filter(user=user_ob, document_file=doc_ob).first()
+                    if existing_document:
+                        messages.error(request, "File already asign to this user!")
+                        return redirect('asign_document')
+                    Document.objects.create(user=user_ob, document_file=doc_ob)
+                    messages.success(request,"Successfully Asign File!")
+                    return redirect('asign_document')
+            return render(request, 'asign_document.html', {'active3' : 'active', 'doc_ob' : doc_ob, 'docs' : docs, 'users' : users})
+        else:
+            messages.error(request,"You are not superuser!")
+            return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
     
 @login_required()
-def asign_document(request):
-    if request.user.is_superuser:
-        docs = DocumentFile.objects.all()
-        doc_ob = Document.objects.all()
-        users = User.objects.all().exclude(is_superuser=True)
-        if request.method == "POST":
-            data = request.POST
-            type = data.get('type')
-            if type == 'delete':
-                id = data.get('doc_id')
-                doc_ob = Document.objects.get(id=id)
-                doc_ob.delete()
-                messages.success(request, 'Successfully Un asign File!')
-                return redirect('asign_document')
-            if type == 'new-asign':
-                user_id = data.get('user')
-                document_id = data.get('document')
-                
-                user_ob = User.objects.get(id=user_id)
-                doc_ob = DocumentFile.objects.get(id=document_id)
-                
-                existing_document = Document.objects.filter(user=user_ob, document_file=doc_ob).first()
-                if existing_document:
-                    messages.error(request, "File already asign to this user!")
-                    return redirect('asign_document')
-                Document.objects.create(user=user_ob, document_file=doc_ob)
-                messages.success(request,"Successfully Asign File!")
-                return redirect('asign_document')
-        return render(request, 'asign_document.html', {'active3' : 'active', 'doc_ob' : doc_ob, 'docs' : docs, 'users' : users})
-    else:
-        messages.error(request,"You are not superuser!")
-        return redirect('index')
-
-@login_required()
 def asign_document_detail(request, id):
-    # try:
+    try:
         if request.user.is_superuser:
-            docs = DocumentFile.objects.all()
+            signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
+            docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
             users = User.objects.all().exclude(is_superuser=True)
             asign_doc_ob = Document.objects.get(id=id)
             if request.method == "POST":
@@ -316,200 +316,144 @@ def asign_document_detail(request, id):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
+    
 @login_required()
 def sign_document(request):
-    if not request.user.is_superuser:
-        doc_ob = Document.objects.filter(user=request.user, is_signed=False).order_by('-created_at')
-        return render(request, 'sign_document.html', {'active4' : 'active', 'doc_ob' : doc_ob})
-
+    try:
+        if not request.user.is_superuser:
+            doc_ob = Document.objects.filter(user=request.user, is_signed=False, black_list=False).order_by('-created_at')
+            return render(request, 'sign_document.html', {'active4' : 'active', 'doc_ob' : doc_ob})
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
 @login_required()
 def sign_document_detail(request, id=None):
-    document_ob = Document.objects.get(id=id)
-    if request.method == 'POST':
-        user_agent = request.user_agent
-        ip_address = get_client_ip_address(request)
-        browser = user_agent.browser.family
-        browser_version = user_agent.browser.version_string
-        os = user_agent.os.family
-        os_version = user_agent.os.version_string
-        is_pc = user_agent.is_pc
-        is_mobile = user_agent.is_mobile
-        is_tablet = user_agent.is_tablet
-        
-        signature_data = request.POST.get('signature_data') 
-        if signature_data:
-            format, imgstr = signature_data.split(';base64,')
-            ext = format.split('/')[-1]  
-            signature_image_data = ContentFile(base64.b64decode(imgstr), name='signature.' + ext)
-            document_ob.signature_image.save('signature.' + ext, signature_image_data, save=True)
-        document_ob.is_signed = True
-        document_ob.ip_address = ip_address
-        document_ob.browser = browser
-        document_ob.browser_version = browser_version
-        document_ob.os = os
-        document_ob.os_version = os_version
-        if is_pc:
-            document_ob.device = 'Pc'
-        elif is_mobile:
-            document_ob.device = 'Mobile'
-        elif is_tablet:
-            document_ob.device = 'Tablet'
+    try:
+        document_ob = Document.objects.get(id=id)
+        if request.method == 'POST':
+            user_agent = request.user_agent
+            ip_address = get_client_ip_address(request)
+            browser = user_agent.browser.family
+            browser_version = user_agent.browser.version_string
+            os = user_agent.os.family
+            os_version = user_agent.os.version_string
+            is_pc = user_agent.is_pc
+            is_mobile = user_agent.is_mobile
+            is_tablet = user_agent.is_tablet
+            
+            signature_data = request.POST.get('signature_data') 
+            if signature_data:
+                format, imgstr = signature_data.split(';base64,')
+                ext = format.split('/')[-1]  
+                signature_image_data = ContentFile(base64.b64decode(imgstr), name='signature.' + ext)
+                document_ob.signature_image.save('signature.' + ext, signature_image_data, save=True)
+            document_ob.is_signed = True
+            document_ob.ip_address = ip_address
+            document_ob.browser = browser
+            document_ob.browser_version = browser_version
+            document_ob.os = os
+            document_ob.os_version = os_version
+            if is_pc:
+                document_ob.device = 'Pc'
+            elif is_mobile:
+                document_ob.device = 'Mobile'
+            elif is_tablet:
+                document_ob.device = 'Tablet'
 
-        pdf_buffer = BytesIO()
-        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
-        elements = []
-
-        signature_image_path = document_ob.signature_image.path
-
-        signature_image_width = 100
-        signature_image_height = 50
-        signature_image = Image(signature_image_path, width=signature_image_width, height=signature_image_height)
-        file_name = document_ob.document_file.file.name.split('/')[-1]
-
-        data = [
-            ['Signature', signature_image],
-            ['User', request.user.username],
-            ['File Name', file_name],
-            ['Is Signed', 'True'],
-            ['IP Address', ip_address],
-            ['Operating System', os],
-            ['OS Version', os_version],
-            ['Browser', browser],
-            ['Browser Version', browser_version],
-            ['Device', 'Pc' if is_pc else ('Mobile' if is_mobile else 'Tablet')],
-            ['Assigning Date', document_ob.created_at.strftime("%B %d, %Y")],
-            ['Assigning Time', document_ob.created_at.strftime("%I:%M %p")],
-            ['Signed Date', document_ob.updated_at.strftime("%B %d, %Y")],
-            ['Signed Time', document_ob.updated_at.strftime("%I:%M %p")],
-        ]
-
-        table = Table(data, colWidths=[200, 200])
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.beige),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ]))
-
-        elements.append(table)
-        doc.build(elements)
-        pdf_file = ContentFile(pdf_buffer.getvalue())
-        dc = DocumentFile()
-        dc.file.save(f'signed_{file_name}', pdf_file, save=True)
-        pdf_buffer.close()
-
-
-        # Assuming document_ob is the Document object
-    # document_file = document_ob.document_file.file
-    # if document_file:
-    #     # Open the existing PDF file
-    #     with open(document_file.path, 'rb') as file:
-    #         existing_pdf = PdfReader(file)
-
-    #         # Create a BytesIO buffer to store the modified PDF content
-    #         pdf_buffer = BytesIO()
-
-    #         # Create a canvas for the new page with ReportLab
-    #         doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
-    #         elements = []
-
-    #         signature_image_path = document_ob.signature_image.path
-
-    #         # # Set the width and height of the image as per your requirement
-    #         signature_image_width = 100
-    #         signature_image_height = 50
-    #         signature_image = Image(signature_image_path, width=signature_image_width, height=signature_image_height)
-    #         file_name = document_ob.document_file.file.name.split('/')[-1]
-    #         # # Define data for the table
-
-    #         data = [
-    #             ['Signature', signature_image],
-    #             ['User', request.user.username],
-    #             ['File Name', file_name],
-    #             ['Is Signed', 'True'],
-                # ['IP Address', ip_address],
-                # ['Operating System', os],
-                # ['OS Version', os_version],
-                # ['Browser', browser],
-                # ['Browser Version', browser_version],
-                # ['Device', 'Pc' if is_pc else ('Mobile' if is_mobile else 'Tablet')],
-                # ['Assigning Date', document_ob.created_at.strftime("%B %d, %Y")],
-                # ['Assigning Time', document_ob.created_at.strftime("%I:%M %p")],
-                # ['Signed Date', document_ob.updated_at.strftime("%B %d, %Y")],
-                # ['Signed Time', document_ob.updated_at.strftime("%I:%M %p")],
-            # ]
-
-
-            # Create a table and set style
-            # table = Table(data, colWidths=[200, 200])
-            # table.setStyle(TableStyle([
-            #     ('BACKGROUND', (0, 0), (-1, 0), colors.beige),
-            #     ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            #     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            #     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            #     ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            #     ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            # ]))
-
-
-            # # Add table to the elements list
-            # elements.append(table)
-
-            # # Build the PDF document
-            # doc.build(elements)
-
-            # # Merge the existing PDF with the new PDF content
-            # merger = PdfMerger()
-            # merger.append(existing_pdf)
-
-            # # Close the existing PDF
-            # existing_pdf.close()
-
-            # # Append the modified PDF content to the merger
-            # pdf_buffer.seek(0)
-            # merger.append(pdf_buffer)
-
-            # # Save the merged PDF content to a BytesIO buffer
-            # merged_pdf_buffer = BytesIO()
-            # merger.write(merged_pdf_buffer)
-
-            # # Save the modified PDF file to the database
-            # dc = DocumentFile()
-            # dc.file.save(f'signed_{document_file.name.split("/")[-1]}', merged_pdf_buffer, save=True)
-
-            # # Close the PDF buffers
-            # pdf_buffer.close()
-            # merged_pdf_buffer.close()
-
-
-
-
-
-
-
-
-        document_ob.save()
-        messages.success(request, 'Successfully Signed!')
-        return redirect('sign_document')
-    return render(request, 'sign_document_detail.html', {'active4' : 'active', 'doc_ob' : document_ob})
-
+            existing_pdf_path = document_ob.document_file.file.path
+            signature_image_path = document_ob.signature_image.path
+            signature_image_width = 100
+            signature_image_height = 50
+            signature_image = Image(signature_image_path, width=signature_image_width, height=signature_image_height)
+            file_name = document_ob.document_file.file.name.split('/')[-1]
+            data = [
+                ['Signature', signature_image],
+                ['User', request.user.username],
+                ['File Name', file_name],
+                ['Is Signed', 'True'],
+                ['IP Address', ip_address],
+                ['Operating System', os],
+                ['OS Version', os_version],
+                ['Browser', browser],
+                ['Browser Version', browser_version],
+                ['Device', 'Pc' if is_pc else ('Mobile' if is_mobile else 'Tablet')],
+                ['Assigning Date', document_ob.created_at.strftime("%B %d, %Y")],
+                ['Assigning Time', document_ob.created_at.strftime("%I:%M %p")],
+                ['Signed Date', document_ob.updated_at.strftime("%B %d, %Y")],
+                ['Signed Time', document_ob.updated_at.strftime("%I:%M %p")],
+            ]
+            table = Table(data, colWidths=[200, 200])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.beige),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ]))
+            with open(existing_pdf_path, "rb") as existing_file:
+                existing_pdf = PyPDF2.PdfReader(existing_file)
+                output_pdf = PyPDF2.PdfWriter()
+                for page_num in range(len(existing_pdf.pages)):
+                    page = existing_pdf.pages[page_num]
+                    output_pdf.add_page(page)
+                buffer = BytesIO()
+                doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+                doc.build([table])
+                buffer.seek(0)
+                new_pdf = PyPDF2.PdfReader(buffer)
+                for page_num in range(len(new_pdf.pages)):
+                    page = new_pdf.pages[page_num]
+                    output_pdf.add_page(page)
+                output_buffer = BytesIO()
+                output_pdf.write(output_buffer)
+                output_buffer.seek(0)
+                output_document_file = DocumentFile.objects.create()
+                output_document_file.file.save(f'signed_{request.user.username}_{file_name}', ContentFile(output_buffer.read()), save=True)
+                document_ob.signed_document = output_document_file
+                document_ob.save()
+            document_ob.save()
+            messages.success(request, 'Successfully Signed!')
+            return redirect('sign_document')
+        return render(request, 'sign_document_detail.html', {'active4' : 'active', 'doc_ob' : document_ob})
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
+    
 @login_required()
 def signed_document(request):
-    if request.user.is_superuser:
-        document_ob = Document.objects.filter(is_signed=True).order_by('-created_at')
-    if not request.user.is_superuser:
-        document_ob = Document.objects.filter(is_signed=True, user=request.user).order_by('-created_at')
-    return render(request, 'signed_documents.html', {'active5' : 'active', 'doc_ob' : document_ob})
-
+    try:
+        if request.user.is_superuser:
+            document_ob = Document.objects.filter(is_signed=True).order_by('-updated_at')
+        if not request.user.is_superuser:
+            document_ob = Document.objects.filter(is_signed=True, user=request.user).order_by('-updated_at')
+        return render(request, 'signed_documents.html', {'active5' : 'active', 'doc_ob' : document_ob})
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
+    
 @login_required()
 def signed_document_detail(request, id):
-    if not request.user.is_superuser:
-        document_ob = Document.objects.filter(is_signed=True, id=id, user=request.user)
-    document_ob = Document.objects.get(id=id)
-    return render(request, 'signed_document_detail.html', {'doc' : document_ob})
+    try:
+        if not request.user.is_superuser:
+            document_ob = Document.objects.filter(is_signed=True, id=id, user=request.user)
+        document_ob = Document.objects.get(id=id)
+        return render(request, 'signed_document_detail.html', {'doc' : document_ob})
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
+    
+def download_pdf(request, document_id):
+    document = Document.objects.get(pk=document_id)
+    document_path = document.signed_document.file.path
+    file_name = document.signed_document.file.name.split('/')[-1]
+    with open(document_path, 'rb') as pdf_file:
+        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response
 
 # print(Document.objects.prefetch_related('document_file').values('id', 'document_file__id' ,'document_file__file'))
 # User.objects.filter(is_superuser=False).delete()
@@ -518,13 +462,6 @@ def signed_document_detail(request, id):
 # pdf_path = convert(doc.document_file.file.path, "output1.pdf")
 # print('path : ', pdf_path)
 # import win32com.client
-
-# def doc_to_pdf(input_file, output_file):
-#     word = win32com.client.Dispatch("Word.Application")
-#     doc = word.Documents.Open(input_file)
-#     doc.SaveAs(output_file, FileFormat=17)
-#     doc.Close()
-#     word.Quit()
 
 # input_file = doc.document_file.file.path
 # output_file = "output11.pdf"

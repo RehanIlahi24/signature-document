@@ -1,3 +1,4 @@
+{% load custom_filters %}
 {% include 'includes/head.html' %}
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
@@ -32,8 +33,8 @@
                                       <th></th>
                                       <th>User</th>
                                       <th>Document</th>
-                                      <th>Is Signed</th>
-                                      <th>signature_image</th>
+                                      {% comment %} <th>Signed Document</th> {% endcomment %}
+                                      <th>signature</th>
                                       <th>Action</th>
                                     </tr>
                                   </thead>
@@ -41,15 +42,16 @@
                                   <tr>
                                       <th></th>
                                       <td>{{ doc.user.username|capfirst }}</td>
-                                      <td>{{ doc.document_file.file }}</td>
-                                      <td>{{ doc.is_signed }}</td>
+                                      <td>{{ doc.document_file.file.name|get_filename }}</td>
+                                      {% comment %} <td>{{ doc.signed_document.file.name|get_filename }}</td> {% endcomment %}
                                       <td><img src="{{ doc.signature_image.url }}" width="100" alt=""></td>
                                       <td>
                                         <div class="d-flex ">
-                                          <a href="{% url "signed_document_detail" doc.id %}" class="btn btn-primary me-2"><i class="menu-icon tf-icons ti ti-eye" aria-hidden="true"></i></a>
-                                          <button data-bs-toggle="modal" data-bs-target="#delete_asign_doc" onclick="delete_asign_doc(this)" class="btn btn-danger" data-id="{{ doc.id }}">
-                                            <i class="menu-icon tf-icons ti ti-trash" aria-hidden="true"></i>
-                                          </button>
+                                          <a href="{% url "signed_document_detail" doc.id %}" class="btn btn-primary me-1"><i class="menu-icon tf-icons ti ti-eye" aria-hidden="true"></i></a>
+                                          <a href="{% url 'download_pdf' document_id=doc.id %}" class="btn btn-success">
+                                            <i class="menu-icon tf-icons ti ti-download" aria-hidden="true"></i>
+                                          </a>
+                                        
                                         </div>
                                       </td>
                                   </tr>

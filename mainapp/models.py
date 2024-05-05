@@ -22,10 +22,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['first_name','last_name' ]
 
-    class Meta:
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
-
     def __str__(self):
         '''
         Displays email on admin panel
@@ -43,6 +39,7 @@ class Document(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     document_file = models.ForeignKey(DocumentFile, on_delete=models.CASCADE)
+    signed_document = models.ForeignKey(DocumentFile, on_delete=models.CASCADE, null=True, blank=True, related_name='signed_documents')
     is_signed = models.BooleanField(default=False)
 
     signature_image = models.ImageField(upload_to='signature_images/', null=True, blank=True)
@@ -54,6 +51,7 @@ class Document(models.Model):
     browser = models.CharField(max_length=255, null=True, blank=True)
     browser_version = models.CharField(max_length=255, null=True, blank=True)
     device = models.CharField(max_length=255, null=True, blank=True, choices=DEVICE_CHOICES)
+    black_list = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

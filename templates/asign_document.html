@@ -1,3 +1,4 @@
+{% load custom_filters %}
 {% include 'includes/head.html' %}
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
@@ -41,7 +42,7 @@
                                   <tr>
                                       <th></th>
                                       <td>{{ doc.user.username }}</td>
-                                      <td>{{ doc.document_file.file }}</td>
+                                      <td>{{ doc.document_file.file.name|get_filename }}</td>
                                       <td>{{ doc.is_signed }}</td>
                                       <td>
                                         <div class="d-flex ">
@@ -135,7 +136,7 @@
                                                             <label for="document_file" class="form-label">Document</label>
                                                             <select class="select2 form-control" id="document" name="document" style="height: 36px;width: 100%;">
                                                                 {% for doc in docs %}
-                                                                    <option value="{{ doc.id }}">{{ doc.file }}</option>
+                                                                    <option value="{{ doc.id }}">{{ doc.file.name|get_filename }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </div>

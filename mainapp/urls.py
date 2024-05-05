@@ -15,4 +15,5 @@ urlpatterns = [
     path('sign_document_detail/<int:id>/', views.sign_document_detail, name='sign_document_detail'),
     path('signed_document/', views.signed_document, name='signed_document'),
     path('signed_document_detail/<int:id>/', views.signed_document_detail, name='signed_document_detail'),
+    path('download-pdf/<int:document_id>/', views.download_pdf, name='download_pdf'),
 ]

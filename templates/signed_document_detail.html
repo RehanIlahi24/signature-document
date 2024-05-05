@@ -1,3 +1,4 @@
+{% load custom_filters %}
 {% include 'includes/head.html' %}
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
@@ -24,20 +25,25 @@
                   <table class="table table-borderless">
                     <tbody>
                       <tr>
+                        <td>signature</td>
+                        <td><img src="{{ doc.signature_image.url }}" width="100" alt=""></td>
+                      </tr>
+                      <tr>
                         <td>User</td>
                         <td>{{ doc.user.username|capfirst }}</td>
                       </tr>
                       <tr>
                         <td>Document</td>
-                        <td>{{ doc.document_file.file }}</td>
+                        <td>{{ doc.document_file.file.name|get_filename }}</td>
                       </tr>
                       <tr>
+                        <tr>
+                          <td>Signed Document</td>
+                          <td>{{ doc.signed_document.file.name|get_filename }}</td>
+                        </tr>
+                        <tr>
                         <td>Is Signed</td>
                         <td>{{ doc.is_signed }}</td>
-                      </tr>
-                      <tr>
-                        <td>signature_image</td>
-                        <td><img src="{{ doc.signature_image.url }}" width="100" alt=""></td>
                       </tr>
                       <tr>
                         <td>ip_address</td>
