@@ -212,7 +212,7 @@ def doc2pdf_linux(doc):
 
 @login_required()
 def document_files(request):
-    try:
+    # try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
@@ -268,9 +268,10 @@ def document_files(request):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    except:
-        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-        return redirect('index')    
+    # except:
+    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+    #     return redirect('index')    
+
 @login_required()
 def asign_document(request):
     try:
