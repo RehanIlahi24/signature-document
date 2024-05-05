@@ -208,6 +208,7 @@ def doc2pdf_linux(doc, filename):
     cmd = f"/usr/bin/libreoffice --convert-to pdf --outdir {os.path.dirname(doc)} {doc}"
     try:
         subprocess.run(cmd, shell=True, check=True)
+        print('pdf path in linux function', pdf_path)
         return pdf_path
     except subprocess.CalledProcessError as e:
         print(f"Error converting document: {e}")
@@ -238,9 +239,10 @@ def document_files(request):
                                 temp_docx_file.write(chunk)
                             temp_docx_path = temp_docx_file.name
                         # try:
-                        pdf_filename = f'{document.name[:-5]}.pdf'
-                        pdf_path = doc2pdf_linux(temp_docx_path, pdf_filename)
+                        pdf_path = doc2pdf_linux(temp_docx_path)
+                        print('pdf path in return linux function', pdf_path)
                         pdf_filename = os.path.basename(pdf_path)
+                        print('pdf filename in before save function', pdf_path)
                         if not DocumentFile.objects.filter(file=pdf_filename).exists():
                             with open(pdf_path, 'rb') as pdf_file:
                                 document_file = DocumentFile()
