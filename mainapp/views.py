@@ -240,10 +240,10 @@ def document_files(request):
                         # try:
                         pdf_path = doc2pdf_linux(temp_docx_path)
                         pdf_filename = os.path.basename(pdf_path)
-                        if not DocumentFile.objects.filter(file=pdf_path).exists():
+                        if not DocumentFile.objects.filter(file=pdf_filename).exists():
                             with open(pdf_path, 'rb') as pdf_file:
                                 document_file = DocumentFile()
-                                document_file.file.save(pdf_path, ContentFile(pdf_file.read()), save=True)
+                                document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
                                 document_file.save()
                                 messages.success(request, "Successfully added file!")
                         # except Exception as e:
