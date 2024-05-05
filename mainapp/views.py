@@ -239,7 +239,8 @@ def document_files(request):
                                 temp_docx_file.write(chunk)
                             temp_docx_path = temp_docx_file.name
                         # try:
-                        pdf_path = doc2pdf_linux(temp_docx_path)
+                        pdf_file_name = f'{document.name[:-5]}.pdf'
+                        pdf_path = doc2pdf_linux(temp_docx_path, pdf_file_name)
                         print('pdf path in return linux function', pdf_path)
                         pdf_filename = os.path.basename(pdf_path)
                         print('pdf filename in before save function', pdf_path)
