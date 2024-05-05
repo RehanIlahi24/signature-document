@@ -17,6 +17,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from tempfile import NamedTemporaryFile
 import base64
+import subprocess
 from docx2pdf import convert
 import os
 # Create your views here.
@@ -197,6 +198,18 @@ def user_detail(request, id):
             messages.warning(request, 'Request is not responed please check your internet connection and try again!')
             return redirect('user_view')
 
+def doc2pdf_linux(doc):
+    """
+    convert a doc/docx document to pdf format (linux only, requires libreoffice)
+    :param doc: path to document
+    """
+    cmd = 'libreoffice --convert-to pdf'.split() + [doc]
+    p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    p.wait(timeout=10)
+    stdout, stderr = p.communicate()
+    if stderr:
+        raise subprocess.SubprocessError(stderr)
+
 @login_required()
 def document_files(request):
     try:
@@ -221,18 +234,31 @@ def document_files(request):
                             for chunk in document.chunks():
                                 temp_docx_file.write(chunk)
                             temp_docx_path = temp_docx_file.name
-                        pdf_filename = f'{document.name[:-5]}.pdf'
-                        convert(temp_docx_path, pdf_filename)
-                        os.remove(temp_docx_path)
-                        if pdf_filename:
-                            if DocumentFile.objects.filter(file=pdf_filename).exists():
-                                messages.error(request, "File already exists!")
-                            else:
-                                with open(pdf_filename, 'rb') as pdf_file:
+                        try:
+                            pdf_path = doc2pdf_linux(temp_docx_path)  # Convert DOCX to PDF using the linux function
+                            
+                            # Save the PDF file to your model
+                            pdf_filename = os.path.basename(pdf_path)
+                            if not DocumentFile.objects.filter(file=pdf_filename).exists():
+                                with open(pdf_path, 'rb') as pdf_file:
                                     document_file = DocumentFile()
                                     document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
                                     document_file.save()
-                                    messages.success(request, "Successfully Add File!")
+                                    messages.success(request, "Successfully added file!")
+                        except Exception as e:
+                            messages.error(request, f"Error converting document: {e}")
+                        # pdf_filename = f'{document.name[:-5]}.pdf'
+                        # convert(temp_docx_path, pdf_filename)
+                        # os.remove(temp_docx_path)
+                        # if pdf_filename:
+                        #     if DocumentFile.objects.filter(file=pdf_filename).exists():
+                        #         messages.error(request, "File already exists!")
+                        #     else:
+                        #         with open(pdf_filename, 'rb') as pdf_file:
+                        #             document_file = DocumentFile()
+                        #             document_file.file.save(pdf_filename, ContentFile(pdf_file.read()), save=True)
+                        #             document_file.save()
+                        #             messages.success(request, "Successfully Add File!")
                     else:
                         document_file = DocumentFile(file=document)  
                         document_file.save()
