@@ -199,7 +199,7 @@ def user_detail(request, id):
 
 @login_required()
 def document_files(request):
-    # try:
+    try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
@@ -242,12 +242,12 @@ def document_files(request):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')    
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')    
 @login_required()
 def asign_document(request):
-    # try:
+    try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
@@ -283,13 +283,13 @@ def asign_document(request):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
     
 @login_required()
 def asign_document_detail(request, id):
-    # try:
+    try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
@@ -316,22 +316,22 @@ def asign_document_detail(request, id):
         else:
             messages.error(request,"You are not superuser!")
             return redirect('index')
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
     
 @login_required()
 def sign_document(request):
-    # try:
+    try:
         if not request.user.is_superuser:
             doc_ob = Document.objects.filter(user=request.user, is_signed=False, black_list=False).order_by('-created_at')
             return render(request, 'sign_document.html', {'active4' : 'active', 'doc_ob' : doc_ob})
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
 @login_required()
 def sign_document_detail(request, id=None):
-    # try:
+    try:
         document_ob = Document.objects.get(id=id)
         if request.method == 'POST':
             user_agent = request.user_agent
@@ -419,32 +419,32 @@ def sign_document_detail(request, id=None):
             messages.success(request, 'Successfully Signed!')
             return redirect('sign_document')
         return render(request, 'sign_document_detail.html', {'active4' : 'active', 'doc_ob' : document_ob})
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
     
 @login_required()
 def signed_document(request):
-    # try:
+    try:
         if request.user.is_superuser:
             document_ob = Document.objects.filter(is_signed=True).order_by('-updated_at')
         if not request.user.is_superuser:
             document_ob = Document.objects.filter(is_signed=True, user=request.user).order_by('-updated_at')
         return render(request, 'signed_documents.html', {'active5' : 'active', 'doc_ob' : document_ob})
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
     
 @login_required()
 def signed_document_detail(request, id):
-    # try:
+    try:
         if not request.user.is_superuser:
             document_ob = Document.objects.filter(is_signed=True, id=id, user=request.user)
         document_ob = Document.objects.get(id=id)
         return render(request, 'signed_document_detail.html', {'doc' : document_ob})
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
     
 def download_pdf(request, document_id):
     document = Document.objects.get(pk=document_id)
