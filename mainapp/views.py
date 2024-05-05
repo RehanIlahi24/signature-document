@@ -204,14 +204,14 @@ def doc2pdf_linux(doc, filename):
     :param doc: Path to document
     :return: Path to the converted PDF file, or None if conversion fails
     """
-    file_name = filename
+    file_name = os.path.join(os.path.dirname(doc), filename)
     cmd = f"/usr/bin/libreoffice --convert-to pdf --outdir {os.path.dirname(doc)} {doc}"
     try:
         subprocess.run(cmd, shell=True, check=True)
         return file_name
     except subprocess.CalledProcessError as e:
         print(f"Error converting document: {e}")
-        return None
+        return None 
 
 @login_required()
 def document_files(request):
