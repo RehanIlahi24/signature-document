@@ -118,7 +118,7 @@
         var canvas = document.querySelector('canvas');
         var signatureData = canvas.toDataURL(); 
         var documentId = document.querySelector('#document_id').value;
-        var url = '/dashboard/sign_document_detail/' + documentId + '/';
+        var url = '/sign_document_detail/' + documentId + '/';
         
         var xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
