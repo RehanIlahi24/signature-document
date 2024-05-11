@@ -1,3 +1,4 @@
+{% load static %}
 {% include 'includes/head.html' %}
 
     <div class="container-xxl">
@@ -10,7 +11,10 @@
               <div class="app-brand justify-content-center mb-4 mt-2">
                 <a href="{% url "index" %}" class="app-brand-link gap-2">
                   <span class="app-brand-logo ">
-                    <img src="/media/warwick-logo.PNG" width="100" class="img-fluid" alt="">
+                    <div class="d-flex">
+                      <img src="{% static "assets/img/avatars/owri.PNG" %}" width="50" class="img-fluid" alt="">
+                      <img src="{% static "assets/img/avatars/wqqz.PNG" %}" width="80" class="img-fluid" alt="">
+                    </div>
                   </span> 
                 </a>
               </div>

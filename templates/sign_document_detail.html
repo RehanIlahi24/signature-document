@@ -118,7 +118,8 @@
         var canvas = document.querySelector('canvas');
         var signatureData = canvas.toDataURL(); 
         var documentId = document.querySelector('#document_id').value;
-        var url = '/dashboard/sign_document_detail/' + documentId + '/';
+        var url = '/sign_document_detail/' + documentId + '/';
+        console.log(signatureData)
         
         var xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
@@ -129,8 +130,14 @@
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     console.log('Signature saved successfully!');
+                    alertify.set('notifier','position', 'top-right');
+                    alertify.success('Signature saved successfully!');
+                    setTimeout(function() {
+                      window.location.href = '/signed_document/';
+                    }, 1200);
                 } else {
-                    console.error('Error:', xhr.status);
+                  alertify.set('notifier','position', 'top-right');
+                  alertify.error('Please try again!!');
                 }
             }
         };
