@@ -10,8 +10,11 @@
              <!-- Logo -->
              <div class="app-brand justify-content-center mb-4 mt-2">
               <a href="{% url "index" %}" class="app-brand-link gap-2">
-                <span class="app-brand-logo ">
-                  <img src="/media/warwick-logo.PNG" width="100" class="img-fluid" alt="">
+                <span class="app-brand-logo">
+                  <div class="d-flex">
+                    <img src="{% static "assets/img/avatars/owri.PNG" %}" width="50" class="img-fluid" alt="">
+                    <img src="{% static "assets/img/avatars/wqqz.PNG" %}" width="80" class="img-fluid" alt="">
+                  </div>
                 </span> 
               </a>
             </div>
@@ -30,6 +33,18 @@
                     id="username"
                     name="username"
                     placeholder="Enter your username"
+                    autofocus
+                  />
+                </div>
+                <div class="mb-3">
+                <label  class="form-label">Email</label>
+                  <input
+                    required
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
                     autofocus
                   />
                 </div>

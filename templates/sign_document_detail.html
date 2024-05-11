@@ -129,8 +129,14 @@
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     console.log('Signature saved successfully!');
+                    alertify.set('notifier','position', 'top-right');
+                    alertify.success('Signature saved successfully!');
+                    setTimeout(function() {
+                      window.location.href = '/signed_document/';
+                    }, 1200);
                 } else {
-                    console.error('Error:', xhr.status);
+                  alertify.set('notifier','position', 'top-right');
+                  alertify.error('Please try again!!');
                 }
             }
         };

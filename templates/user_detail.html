@@ -30,7 +30,7 @@
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="mb-3">
-                                              <label for="email" class="form-label">Username</label>
+                                              <label for="username" class="form-label">Username</label>
                                               <input
                                                 type="text"
                                                 class="form-control"
@@ -43,26 +43,7 @@
                                               />
                                             </div>                    
                                             <div class="mb-3">
-                                              <label for="email" class="form-label">Last Name</label>
-                                              <input
-                                                type="text"
-                                                class="form-control"
-                                                value={{usr.last_name}}
-                                                id="last_name"
-                                                name="last_name"
-                                                placeholder="Enter your last name"
-                                                autofocus
-                                                required
-                                              />
-                                            </div>
-                                            <div class="mb-3 form-check form-switch">
-                                                <input class="form-check-input mt-3 mb-2" type="checkbox" role="switch" id="is_active" name="is_active" {% if usr.is_active %}checked{% endif %}>
-                                                <label class="form-check-label mt-3 mb-2" for="is_approved" >Is Active</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                              <label for="email" class="form-label">First Name</label>
+                                              <label for="first_name" class="form-label">First Name</label>
                                               <input
                                                 type="text"
                                                 class="form-control"
@@ -74,12 +55,81 @@
                                                 required
                                               />
                                             </div>
+                                            <div class="mb-3 form-password-toggle">
+                                              <div class="d-flex justify-content-between">
+                                                <label class="form-label" for="password">Password</label>
+                                              </div>
+                                              <div class="input-group input-group-merge">
+                                                <input
+                                                  type="password"
+                                                  id="password1"
+                                                  class="form-control"
+                                                  name="password1"
+                                                  placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                                  aria-describedby="password"
+                                                />
+                                              </div>
+                                            </div>
                                             <div class="form-group">
                                               <label for="image">Passport Image</label>
-                                              <input type="file" accept="image/*"  class="form-control-file mt-4 mb-2" id="image" name="image">
+                                              <input
+                                                type="file"
+                                                class="form-control mb-2"
+                                                id="image"
+                                                name="image"
+                                                accept="image/*"
+                                                autofocus
+                                              />
                                               {% if usr.passport_image %}
                                               <img src="{{usr.passport_image.url}}" width="100" alt="" class="mb-2">
                                               {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                          <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input
+                                              type="email"
+                                              class="form-control"
+                                              id="email"
+                                              name="email"
+                                              value={{usr.email}}
+                                              placeholder="Enter your email"
+                                              autofocus
+                                              required
+                                            />
+                                            </div>
+                                            <div class="mb-3">
+                                              <label for="last_name" class="form-label">Last Name</label>
+                                              <input
+                                                type="text"
+                                                class="form-control"
+                                                value={{usr.last_name}}
+                                                id="last_name"
+                                                name="last_name"
+                                                placeholder="Enter your last name"
+                                                autofocus
+                                                required
+                                              />
+                                            </div>
+                                            <div class="mb-3 form-password-toggle">
+                                              <div class="d-flex justify-content-between">
+                                                <label class="form-label" for="password">Confirm Password</label>
+                                              </div>
+                                              <div class="input-group input-group-merge">
+                                                <input
+                                                  type="password"
+                                                  id="password2"
+                                                  class="form-control"
+                                                  name="password2"
+                                                  placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                                  aria-describedby="password2"
+                                                />
+                                              </div>
+                                            </div>
+                                            <div class="mb-3 form-check form-switch">
+                                              <input class="form-check-input mt-4 mb-2" type="checkbox" role="switch" id="is_active" name="is_active" {% if usr.is_active %}checked{% endif %}>
+                                              <label class="form-check-label mt-4 mb-2" for="is_approved" >Is Active</label>
                                             </div>
                                         </div>
                                     </div>

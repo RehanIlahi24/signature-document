@@ -1,23 +1,26 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
+from django.http import HttpResponse, JsonResponse
+from django_ratelimit.decorators import ratelimit
+from django.core.files.base import ContentFile
+from reportlab.lib.pagesizes import landscape
+from reportlab.lib.pagesizes import letter
+from django.shortcuts import HttpResponse
+from tempfile import NamedTemporaryFile
 from django.contrib import messages
+from reportlab.lib import colors
+from .ip_validating import *
+from datetime import date
+from io import BytesIO
 from .models import *
 from .utils import *
-from django.http import HttpResponse
-import uuid
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-import PyPDF2
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import landscape
-from datetime import date
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.hashers import make_password
-from django.core.files.base import ContentFile
-from tempfile import NamedTemporaryFile
-import base64
 import subprocess
+import base64
+import PyPDF2
+import uuid
 import os
 # Create your views here.
 
@@ -30,7 +33,11 @@ def get_client_ip_address(request):
         ip_addr = req_headers.get('REMOTE_ADDR')
     return ip_addr
 
+@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
 def user_login(request):
+    ip_address = get_client_ip_address(request)
+    result = check_ip_blacklist(ip_address)
+    
     if request.user.is_authenticated:
         return redirect("index")
     
@@ -47,12 +54,14 @@ def user_login(request):
             messages.warning(request,"Incorrect username or password!")
     return render(request,'login.html')
 
+@ratelimit(key='ip', rate='10/m', method='ALL')
 def signup_view(request):
     if request.user.is_authenticated:
         return redirect("index")
     if request.method == "POST":
         data = request.POST
         username = data.get('username')
+        email = data.get('email')
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         passport_image = request.FILES.get('passport_image')
@@ -62,7 +71,7 @@ def signup_view(request):
         if not check_obj.exists():
             if password1 == password2:
                 hashed_password = make_password(password1)
-                User.objects.create(passport_image=passport_image, password=hashed_password, username=username, first_name=first_name, last_name=last_name)
+                User.objects.create(passport_image=passport_image, password=hashed_password, username=username, first_name=first_name, last_name=last_name, email=email)
                 messages.success(request,"Successfully SignUp!")
                 return redirect('index')
             else:
@@ -73,6 +82,7 @@ def signup_view(request):
             return redirect('signup')
     return render(request, 'signup.html')
 
+@ratelimit(key='ip', rate='10/m', method='ALL')
 @login_required()
 def change_password(request):
     if request.method == "POST":
@@ -89,6 +99,7 @@ def change_password(request):
             return redirect('change_password')
     return render(request, 'change_password.html')
 
+@ratelimit(key='ip', rate='10/m', method='ALL')
 @login_required()
 def user_logout(request):
     try:
@@ -99,6 +110,7 @@ def user_logout(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
+@ratelimit(key='ip', rate='25/m', method='ALL')
 @login_required()
 def index(request):
     try:
@@ -119,6 +131,7 @@ def index(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def user_view(request):
     try:
@@ -136,6 +149,7 @@ def user_view(request):
                     return redirect('user_view')
                 if type == 'new-user':
                     username = data.get('username')
+                    email = data.get('email')
                     first_name = data.get('first_name')
                     last_name = data.get('last_name')
                     image = request.FILES.get('image')
@@ -148,7 +162,7 @@ def user_view(request):
                     if password == password2:
                         uid = uuid.uuid1()
                         hashed_password = make_password(password)
-                        User.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, passport_image=image, uid=uid)
+                        User.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, passport_image=image, email=email, uid=uid)
                         messages.success(request,"Successfully Created User!")
                         return redirect('user_view')
                     else:
@@ -162,6 +176,7 @@ def user_view(request):
             messages.warning(request, 'Request is not responed please check your internet connection and try again!')
             return redirect('index')
 
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def user_detail(request, id):
     try:
@@ -171,24 +186,47 @@ def user_detail(request, id):
             if request.method == "POST":
                 data = request.POST
                 username = data.get('username')
+                email = data.get('email')
                 first_name = data.get('first_name')
                 last_name = data.get('last_name')
                 image = request.FILES.get('image')
-                print(image, 'image')
+                password1 = data.get('password1')
+                password2 = data.get('password2')
                 is_active = data.get('is_active') == 'on'
                 existing_user = User.objects.filter(username=username).exclude(id=usr.id).first()
                 if existing_user:
                     messages.error(request, "User with this username already exists!")
                     return redirect('user_view')
-                usr.username = username
-                usr.first_name = first_name
-                usr.last_name = last_name
-                if image:
-                    usr.passport_image = image
-                usr.is_active = is_active
-                usr.save()
-                messages.success(request,f'Successfully Updated {usr.username}!')
-                return redirect('user_view')
+                if password1 and password2:
+                    if password1 == password2:
+                        usr.username = username
+                        usr.email = email
+                        usr.first_name = first_name
+                        usr.last_name = last_name
+                        if image:
+                            usr.passport_image = image
+                        usr.is_active = is_active
+                        usr.set_password(password1)
+                        usr.save()
+                        messages.success(request,f'Successfully Updated {usr.username}!')
+                        return redirect('user_view')
+                    else:
+                        messages.warning(request,"Password does not match, Please try again!")
+                        return redirect('user_view')
+                elif password1=="" and password2=="":
+                    usr.username = username
+                    usr.email = email
+                    usr.first_name = first_name
+                    usr.last_name = last_name
+                    if image:
+                        usr.passport_image = image
+                    usr.is_active = is_active
+                    usr.save()
+                    messages.success(request,f'Successfully Updated {usr.username}!')
+                    return redirect('user_view')
+                else:
+                    messages.warning(request,"Password does not match, Please try again!")
+                    return redirect('user_view')
             return render(request, 'user_detail.html', {'users' : users, 'usr' : usr})
         else:
             messages.error(request,"You are not superuser!")
@@ -207,6 +245,7 @@ def doc2pdf_linux(doc):
         print(f"Error converting document: {e}")
         return None
 
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def document_files(request):
     try:
@@ -255,13 +294,14 @@ def document_files(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')    
 
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def asign_document(request):
     try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
-            doc_ob = Document.objects.filter(black_list=False).order_by('-created_at')
+            doc_ob = Document.objects.all().order_by('-created_at')
             users = User.objects.all().exclude(is_superuser=True)
             if request.method == "POST":
                 data = request.POST
@@ -269,10 +309,10 @@ def asign_document(request):
                 if type == 'delete':
                     id = data.get('doc_id')
                     doc_ob = Document.objects.get(id=id)
-                    if doc_ob.is_signed == False:
-                        doc_ob.delete()
-                    else:
-                        doc_ob.black_list = True
+                    if doc_ob.signed_document:
+                        sign_doc_id = doc_ob.signed_document.id
+                        DocumentFile.objects.filter(id=sign_doc_id).first().delete()
+                    doc_ob.delete()
                     messages.success(request, 'Successfully Unasign File!')
                     return redirect('asign_document')
                 if type == 'new-asign':
@@ -296,7 +336,8 @@ def asign_document(request):
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
-    
+
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def asign_document_detail(request, id):
     try:
@@ -329,7 +370,8 @@ def asign_document_detail(request, id):
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
-    
+
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def sign_document(request):
     try:
@@ -339,6 +381,8 @@ def sign_document(request):
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
+
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def sign_document_detail(request, id=None):
     try:
@@ -360,79 +404,80 @@ def sign_document_detail(request, id=None):
                 ext = format.split('/')[-1]  
                 signature_image_data = ContentFile(base64.b64decode(imgstr), name='signature.' + ext)
                 document_ob.signature_image.save('signature.' + ext, signature_image_data, save=True)
-            document_ob.is_signed = True
-            document_ob.ip_address = ip_address
-            document_ob.browser = browser
-            document_ob.browser_version = browser_version
-            document_ob.os = os
-            document_ob.os_version = os_version
-            if is_pc:
-                document_ob.device = 'Pc'
-            elif is_mobile:
-                document_ob.device = 'Mobile'
-            elif is_tablet:
-                document_ob.device = 'Tablet'
+            if document_ob.signature_image:
+                document_ob.is_signed = True
+                document_ob.ip_address = ip_address
+                document_ob.browser = browser
+                document_ob.browser_version = browser_version
+                document_ob.os = os
+                document_ob.os_version = os_version
+                if is_pc:
+                    document_ob.device = 'Pc'
+                elif is_mobile:
+                    document_ob.device = 'Mobile'
+                elif is_tablet:
+                    document_ob.device = 'Tablet'
 
-            existing_pdf_path = document_ob.document_file.file.path
-            signature_image_path = document_ob.signature_image.path
-            signature_image_width = 100
-            signature_image_height = 50
-            signature_image = Image(signature_image_path, width=signature_image_width, height=signature_image_height)
-            file_name = document_ob.document_file.file.name.split('/')[-1]
-            data = [
-                ['Signature', signature_image],
-                ['User', request.user.username],
-                ['File Name', file_name],
-                ['Is Signed', 'True'],
-                ['IP Address', ip_address],
-                ['Operating System', os],
-                ['OS Version', os_version],
-                ['Browser', browser],
-                ['Browser Version', browser_version],
-                ['Device', 'Pc' if is_pc else ('Mobile' if is_mobile else 'Tablet')],
-                ['Assigning Date', document_ob.created_at.strftime("%B %d, %Y")],
-                ['Assigning Time', document_ob.created_at.strftime("%I:%M %p")],
-                ['Signed Date', document_ob.updated_at.strftime("%B %d, %Y")],
-                ['Signed Time', document_ob.updated_at.strftime("%I:%M %p")],
-            ]
-            table = Table(data, colWidths=[200, 200])
-            table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.beige),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ]))
-            with open(existing_pdf_path, "rb") as existing_file:
-                existing_pdf = PyPDF2.PdfReader(existing_file)
-                output_pdf = PyPDF2.PdfWriter()
-                for page_num in range(len(existing_pdf.pages)):
-                    page = existing_pdf.pages[page_num]
-                    output_pdf.add_page(page)
-                buffer = BytesIO()
-                doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-                doc.build([table])
-                buffer.seek(0)
-                new_pdf = PyPDF2.PdfReader(buffer)
-                for page_num in range(len(new_pdf.pages)):
-                    page = new_pdf.pages[page_num]
-                    output_pdf.add_page(page)
-                output_buffer = BytesIO()
-                output_pdf.write(output_buffer)
-                output_buffer.seek(0)
-                output_document_file = DocumentFile.objects.create()
-                output_document_file.file.save(f'signed_{request.user.username}_{file_name}', ContentFile(output_buffer.read()), save=True)
-                document_ob.signed_document = output_document_file
-                document_ob.save()
-            document_ob.save()
-            messages.success(request, 'Successfully Signed!')
-            return redirect('sign_document')
+                existing_pdf_path = document_ob.document_file.file.path
+                signature_image_path = document_ob.signature_image.path
+                signature_image_width = 100
+                signature_image_height = 50
+                signature_image = Image(signature_image_path, width=signature_image_width, height=signature_image_height)
+                file_name = document_ob.document_file.file.name.split('/')[-1]
+                data = [
+                    ['Signature', signature_image],
+                    ['User', request.user.username],
+                    ['File Name', file_name],
+                    ['Is Signed', 'True'],
+                    ['IP Address', ip_address],
+                    ['Operating System', os],
+                    ['OS Version', os_version],
+                    ['Browser', browser],
+                    ['Browser Version', browser_version],
+                    ['Device', 'Pc' if is_pc else ('Mobile' if is_mobile else 'Tablet')],
+                    ['Assigning Date', document_ob.created_at.strftime("%B %d, %Y")],
+                    ['Assigning Time', document_ob.created_at.strftime("%I:%M %p")],
+                    ['Signed Date', document_ob.updated_at.strftime("%B %d, %Y")],
+                    ['Signed Time', document_ob.updated_at.strftime("%I:%M %p")],
+                ]
+                table = Table(data, colWidths=[200, 200])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.beige),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ]))
+                with open(existing_pdf_path, "rb") as existing_file:
+                    existing_pdf = PyPDF2.PdfReader(existing_file)
+                    output_pdf = PyPDF2.PdfWriter()
+                    for page_num in range(len(existing_pdf.pages)):
+                        page = existing_pdf.pages[page_num]
+                        output_pdf.add_page(page)
+                    buffer = BytesIO()
+                    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+                    doc.build([table])
+                    buffer.seek(0)
+                    new_pdf = PyPDF2.PdfReader(buffer)
+                    for page_num in range(len(new_pdf.pages)):
+                        page = new_pdf.pages[page_num]
+                        output_pdf.add_page(page)
+                    output_buffer = BytesIO()
+                    output_pdf.write(output_buffer)
+                    output_buffer.seek(0)
+                    output_document_file = DocumentFile.objects.create()
+                    output_document_file.file.save(f'signed_{request.user.username}_{file_name}', ContentFile(output_buffer.read()), save=True)
+                    document_ob.signed_document = output_document_file
+                    # document_ob.save()
+                    messages.success(request, 'Successfully Signed!')
+                    return redirect('signed_document')
         return render(request, 'sign_document_detail.html', {'active4' : 'active', 'doc_ob' : document_ob})
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
     
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def signed_document(request):
     try:
@@ -444,7 +489,8 @@ def signed_document(request):
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
-    
+
+@ratelimit(key='ip', rate='15/m', method='ALL')
 @login_required()
 def signed_document_detail(request, id):
     try:
@@ -455,7 +501,8 @@ def signed_document_detail(request, id):
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
-    
+
+@ratelimit(key='ip', rate='15/m', method='ALL')
 def download_pdf(request, document_id):
     document = Document.objects.get(pk=document_id)
     document_path = document.signed_document.file.path

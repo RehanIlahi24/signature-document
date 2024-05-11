@@ -5,6 +5,9 @@ from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from .managers import UserManager
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+import os
 
 # Create your models here.
 class User(AbstractBaseUser, PermissionsMixin):
@@ -30,7 +33,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     
 class DocumentFile(models.Model):
     file = models.FileField(upload_to='document_files/')
-    
+
+    def delete_file(self):
+        if self.file:
+            if os.path.isfile(self.file.path):
+                os.remove(self.file.path)
+
+    def delete(self, *args, **kwargs):
+        self.delete_file()
+        super().delete(*args, **kwargs)
+
 class Document(models.Model):
     DEVICE_CHOICES = (
         ('Pc' , 'Pc'),
@@ -55,5 +67,7 @@ class Document(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-# class TestDoc(models.Model):
-#     document_file = models.FileField(upload_to='document_files/')
+@receiver(pre_delete, sender=Document)
+def delete_related_signed_document(sender, instance, **kwargs):
+    if instance.signed_document:
+        instance.signed_document.delete_file()
