@@ -1,22 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
+from django.http import HttpResponse
+from django.shortcuts import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponse, JsonResponse
-from django_ratelimit.decorators import ratelimit
-from django.core.files.base import ContentFile
-from reportlab.lib.pagesizes import landscape
-from reportlab.lib.pagesizes import letter
-from django.shortcuts import HttpResponse
-from tempfile import NamedTemporaryFile
 from django.contrib import messages
-from reportlab.lib import colors
-from .ip_validating import *
 from datetime import date
-from io import BytesIO
+from django.core.files.base import ContentFile
+from django_ratelimit.decorators import ratelimit
+from .ip_validating import *
 from .models import *
 from .utils import *
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import landscape
+from tempfile import NamedTemporaryFile
+from io import BytesIO
 import subprocess
 import base64
 import PyPDF2
