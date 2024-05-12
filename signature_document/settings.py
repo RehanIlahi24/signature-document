@@ -135,6 +135,6 @@ LOGIN_URL='login'
 LOGIN_REDIRECT_URL='login'
 
 # SECURE_SSL_REDIRECT = True
-CORS_ALLOWED_ORIGINS = [
-    'https://dysign.dyrevolution.com',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'https://dysign.dyrevolution.com',
+# ]
