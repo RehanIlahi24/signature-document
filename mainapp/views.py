@@ -33,7 +33,7 @@ def get_client_ip_address(request):
         ip_addr = req_headers.get('REMOTE_ADDR')
     return ip_addr
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+# @ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
 def user_login(request):
     ip_address = get_client_ip_address(request)
     result = check_ip_blacklist(ip_address)
