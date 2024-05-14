@@ -55,7 +55,6 @@ class Document(models.Model):
     is_signed = models.BooleanField(default=False)
 
     signature_image = models.ImageField(upload_to='signature_images/', null=True, blank=True)
-    signature_code = models.CharField(max_length=255, null=True, blank=True)
 
     ip_address = models.CharField(max_length=255, null=True, blank=True)
     os = models.CharField(max_length=255, null=True, blank=True)
@@ -63,7 +62,6 @@ class Document(models.Model):
     browser = models.CharField(max_length=255, null=True, blank=True)
     browser_version = models.CharField(max_length=255, null=True, blank=True)
     device = models.CharField(max_length=255, null=True, blank=True, choices=DEVICE_CHOICES)
-    black_list = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
