@@ -39,8 +39,10 @@ apikey = os.getenv("SENDGRID_APIKEY")
 #         print(e.message)
 
 def send_email_siging(email, subject_content, message_content):
+    print('start')
     subject = subject_content
     message = message_content
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email,]
     send_mail(subject, message, from_email, recipient_list)
+    print('end')
