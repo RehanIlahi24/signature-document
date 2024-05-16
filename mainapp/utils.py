@@ -2,7 +2,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 def pagination_custom(request,table):
     paginator = Paginator(table, 10)
@@ -15,7 +15,7 @@ def pagination_custom(request,table):
         table = paginator.page(paginator.num_pages)
     return table
 
-load_dotenv() 
+# load_dotenv() 
 apikey = os.getenv("SENDGRID_APIKEY")
 
 def send_email(to_email,subject,html):
