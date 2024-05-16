@@ -249,13 +249,15 @@ def doc2pdf_linux(doc):
         print(f"Error converting document: {e}")
         return None
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='16/m', method=['GET', 'POST'])
 @login_required()
 def document_files(request):
     try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
+            print(signed_document_ids)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
+            print(docs.values())
             if request.method == "POST":
                 data = request.POST
                 type = data.get('type')
@@ -378,13 +380,13 @@ def asign_document_detail(request, id):
 @ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
 @login_required()
 def sign_document(request):
-    try:
+    # try:
         if not request.user.is_superuser:
-            doc_ob = Document.objects.filter(user=request.user, is_signed=False, black_list=False).order_by('-created_at')
+            doc_ob = Document.objects.filter(user=request.user, is_signed=False).order_by('-created_at')
             return render(request, 'sign_document.html', {'active4' : 'active', 'doc_ob' : doc_ob})
-    except:
-        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-        return redirect('index')
+    # except:
+    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+    #     return redirect('index')
 
 @ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
 @login_required()

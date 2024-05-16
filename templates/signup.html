@@ -12,15 +12,14 @@
               <a href="{% url "index" %}" class="app-brand-link gap-2">
                 <span class="app-brand-logo">
                   <div class="d-flex">
-                    <img src="{% static "assets/img/avatars/owri.PNG" %}" width="50" class="img-fluid" alt="">
-                    <img src="{% static "assets/img/avatars/wqqz.PNG" %}" width="80" class="img-fluid" alt="">
+                    <img src="{% static "assets/images/logo.jpeg" %}" width="140" class="img-fluid" alt="">
                   </div>
                 </span> 
               </a>
             </div>
             <!-- /Logo -->
             <!-- /Logo -->
-            <h4 class="mb-1 pt-2">Welcome! 👋</h4>
+            <h4 class="mb-1">Welcome! 👋</h4>
             <p class="mb-4">Please sign-in to your account and start the adventure</p>
               <form id="formAuthentication" class="mb-3" action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}

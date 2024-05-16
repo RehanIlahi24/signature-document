@@ -1,12 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from .managers import UserManager
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 import os
 
 # Create your models here.
@@ -64,8 +61,3 @@ class Document(models.Model):
     device = models.CharField(max_length=255, null=True, blank=True, choices=DEVICE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-@receiver(pre_delete, sender=Document)
-def delete_related_signed_document(sender, instance, **kwargs):
-    if instance.signed_document:
-        instance.signed_document.delete_file()
