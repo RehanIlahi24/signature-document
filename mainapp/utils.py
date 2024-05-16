@@ -44,5 +44,9 @@ def send_email_siging(email, subject_content, message_content):
     message = message_content
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email,]
-    send_mail(subject, message, from_email, recipient_list)
+    try:
+        send_mail(subject, message, from_email, recipient_list)
+        print('Email sent successfully')
+    except Exception as e:
+        print('An error occurred while sending the email:', e)
     print('end')
