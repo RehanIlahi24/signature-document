@@ -6,9 +6,7 @@ from .models import *
 
 @receiver(post_save, sender=Document)
 def send_email_of_complete_signing(sender, instance, **kwargs):
-    print("signal called before")
     if instance.is_signed == True:
-        print("signal called after")
         email = instance.user.email
         sign = instance.signature_image.url.split('/')[-1]
         signed_document = instance.signed_document.file.url.split('/')[-1]  
@@ -31,29 +29,9 @@ def send_email_of_complete_signing(sender, instance, **kwargs):
             f"Dear Customer,\n\n"
             f"Your have successfully signed document.\n\n"
             f"Signed Document: {signed_document}\n"
-            f"Metadata: {metadata}\n\n"
-            f"Hash (SHA-512): {hash_value}\n\n"
+            f"{metadata}\n\n"
+            f"{hash_value}\n\n"
             f"Best regards,\n"
             f"DySign"
         )        
         send_email_siging(email, 'Document Signed Successfully', email_body)
-
-
-
-
-# @receiver(post_save, sender=Document) 
-# def send_email_of_complete_siging(sender, instance, **kwargs):
-#     print("signal called before")
-#     if instance.is_signed == True:
-#         print("signal called after")
-#         email = instance.user.email 
-#         send_email_siging(email, f'{instance.ip_address} successfully signed!', f'{instance.ip_address} successfully signed!')
-
-# @receiver(pre_delete, sender=Document)
-# def delete_related_signed_document(sender, instance, **kwargs):
-#     print("signal called before delete")
-#     if instance.signed_document:
-#         print("signal called after delete")
-#         if os.path.isfile(instance.signed_document.file.path):
-#             os.remove(instance.signed_document.file.path)
-#             print("signal called after delete complete")
