@@ -1,18 +1,8 @@
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .utils import send_email_siging
 import hashlib
-from django.db.models.signals import post_save
-# from dashboard.views import business
 from .models import *
-
-# def calculate_sha512_hash(sign, signed_document, metadata):
-    # sha512 = hashlib.sha512()
-    # sha512.update(sign.encode('utf-8'))
-    # sha512.update(signed_document.encode('utf-8'))
-    # for key, value in metadata.items():
-    #     sha512.update(f"{key}:{value}".encode('utf-8'))
-    # return sha512.hexdigest()
 
 @receiver(post_save, sender=Document)
 def send_email_of_complete_signing(sender, instance, **kwargs):
@@ -37,7 +27,6 @@ def send_email_of_complete_signing(sender, instance, **kwargs):
             sha512.update(f"{key}:{value}".encode('utf-8'))
         hash_value = sha512.hexdigest()
         
-        # Email body
         email_body = (
             f"Dear Customer,\n\n"
             f"Your have successfully signed document.\n\n"
@@ -46,13 +35,9 @@ def send_email_of_complete_signing(sender, instance, **kwargs):
             f"Hash (SHA-512): {hash_value}\n\n"
             f"Best regards,\n"
             f"DySign"
-        )
-        
+        )        
         send_email_siging(email, 'Document Signed Successfully', email_body)
 
-        # Save the hash in the instance metadata (optional, depending on your needs)
-        instance.metadata_hash = hash_value
-        instance.save()
 
 
 
