@@ -36,6 +36,7 @@ def send_email(to_email,subject,html):
         print(response.status_code)
         print(response.body)
         print(response.headers)
+        print('exit try')
     except Exception as e:
         print('error : ', e.message)
 
