@@ -20,25 +20,25 @@ def pagination_custom(request,table):
 load_dotenv() 
 apikey = os.getenv("SENDGRID_APIKEY")
 
-def send_email(to_email,subject,html):
-    print("email called before")
-    message = Mail(
-        from_email='dysignca@gmail.com',
-        to_emails=to_email,
-        subject=subject,
-        plain_text_content=html
-        # html_content=html 
-        )
-    try:
-        print('enter try')
-        sg = SendGridAPIClient(apikey)
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-        print('exit try')
-    except Exception as e:
-        print('error : ', e.message)
+# def send_email(to_email,subject,html):
+#     print("email called before")
+#     message = Mail(
+#         from_email='dysignca@gmail.com',
+#         to_emails=to_email,
+#         subject=subject,
+#         plain_text_content=html
+#         # html_content=html 
+#         )
+#     try:
+#         print('enter try')
+#         sg = SendGridAPIClient(apikey)
+#         response = sg.send(message)
+#         print(response.status_code)
+#         print(response.body)
+#         print(response.headers)
+#         print('exit try')
+#     except Exception as e:
+#         print('error : ', e.message)
 
 def send_email_siging(email, subject_content, message_content):
     print('start')
