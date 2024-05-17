@@ -114,7 +114,7 @@ def user_logout(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def index(request):
     try:
@@ -135,7 +135,7 @@ def index(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def user_view(request):
     try:
@@ -180,7 +180,7 @@ def user_view(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def user_detail(request, id):
     try:
@@ -249,7 +249,7 @@ def doc2pdf_linux(doc):
         print(f"Error converting document: {e}")
         return None
 
-@ratelimit(key='ip', rate='16/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def document_files(request):
     try:
@@ -300,7 +300,7 @@ def document_files(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')    
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def asign_document(request):
     try:
@@ -343,7 +343,7 @@ def asign_document(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def asign_document_detail(request, id):
     try:
@@ -377,7 +377,7 @@ def asign_document_detail(request, id):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def sign_document(request):
     # try:
@@ -388,7 +388,7 @@ def sign_document(request):
     #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
     #     return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def sign_document_detail(request, id=None):
     try:
@@ -483,7 +483,7 @@ def sign_document_detail(request, id=None):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
     
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def signed_document(request):
     try:
@@ -496,7 +496,7 @@ def signed_document(request):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def signed_document_detail(request, id):
     try:
@@ -508,7 +508,7 @@ def signed_document_detail(request, id):
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
         return redirect('index')
 
-@ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
+@ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 def download_pdf(request, document_id):
     document = Document.objects.get(pk=document_id)
     document_path = document.signed_document.file.path
