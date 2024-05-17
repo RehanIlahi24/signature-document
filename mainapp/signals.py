@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from .utils import send_email
+from .utils import send_email, send_email_siging
 # from dashboard.views import business
 from .models import *
 
@@ -10,7 +10,7 @@ def send_email_of_complete_siging(sender, instance, **kwargs):
     if instance.is_signed == True:
         print("signal called after")
         email = instance.user.email 
-        send_email(email, f'{instance.ip_address} successfully signed!', f'{instance.ip_address} successfully signed!')
+        send_email_siging(email, f'{instance.ip_address} successfully signed!', f'{instance.ip_address} successfully signed!')
 
 # @receiver(pre_delete, sender=Document)
 # def delete_related_signed_document(sender, instance, **kwargs):
