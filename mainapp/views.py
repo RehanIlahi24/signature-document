@@ -255,9 +255,7 @@ def document_files(request):
     try:
         if request.user.is_superuser:
             signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
-            print(signed_document_ids)
             docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
-            print(docs.values())
             if request.method == "POST":
                 data = request.POST
                 type = data.get('type')
