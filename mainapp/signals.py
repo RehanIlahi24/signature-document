@@ -69,8 +69,7 @@ def send_email_of_complete_signing(sender, instance, **kwargs):
             f"You have successfully signed the document.\n"
             f"This is an automatic message in which we attach a copy of the signed document along with the audit of modifications and signature as well as the key metadata of the transaction and the unique identifier.\n\n"
             
-            f"Signed Document: {signed_document_name}\n"
-            f"Download Signed Document: {signed_document_url}\n\n"
+            f"Signed Document: {signed_document_name}\n\n"
 
             f"IP address: {instance.ip_address}\n"
             f"Operating system and version: {instance.os} {instance.os_version}\n"
