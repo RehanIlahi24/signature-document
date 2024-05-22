@@ -507,6 +507,7 @@ def signed_document_detail(request, id):
         return redirect('index')
 
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
+@login_required()
 def download_pdf(request, document_id):
     document = Document.objects.get(pk=document_id, user=request.user)
     document_path = document.signed_document.file.path
