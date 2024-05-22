@@ -378,13 +378,13 @@ def asign_document_detail(request, id):
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def sign_document(request):
-    # try:
+    try:
         if not request.user.is_superuser:
             doc_ob = Document.objects.filter(user=request.user, is_signed=False).order_by('-created_at')
             return render(request, 'sign_document.html', {'active4' : 'active', 'doc_ob' : doc_ob})
-    # except:
-    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-    #     return redirect('index')
+    except:
+        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        return redirect('index')
 
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
