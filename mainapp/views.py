@@ -390,7 +390,7 @@ def sign_document(request):
 @login_required()
 def sign_document_detail(request, id=None):
     try:
-        document_ob = Document.objects.get(id=id)
+        document_ob = Document.objects.get(id=id, user=request.user)
         if request.method == 'POST':
             user_agent = request.user_agent
             ip_address = get_client_ip_address(request)
@@ -508,7 +508,7 @@ def signed_document_detail(request, id):
 
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 def download_pdf(request, document_id):
-    document = Document.objects.get(pk=document_id)
+    document = Document.objects.get(pk=document_id, user=request.user)
     document_path = document.signed_document.file.path
     file_name = document.signed_document.file.name.split('/')[-1]
     with open(document_path, 'rb') as pdf_file:
