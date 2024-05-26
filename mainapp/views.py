@@ -517,10 +517,11 @@ def signed_document(request):
 @login_required()
 def signed_document_detail(request, id):
     try:
-        if not request.user.is_superuser:
+        if request.user.is_superuser:
+            document_ob = Document.objects.get(id=id)
+        else:
             document_ob = Document.objects.filter(is_signed=True, id=id, user=request.user)
         # elif request.user.is_superuser:
-        document_ob = Document.objects.get(id=id)
         return render(request, 'signed_document_detail.html', {'doc' : document_ob})
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
