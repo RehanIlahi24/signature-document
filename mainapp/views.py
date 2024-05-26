@@ -518,7 +518,7 @@ def signed_document(request):
 def signed_document_detail(request, id):
     try:
         if request.user.is_superuser:
-            document_ob = Document.objects.get(id=id)
+            document_ob = Document.objects.get(id=id, is_signed=True)
         else:
             document_ob = Document.objects.get(id=id, is_signed=True, user=request.user)
         return render(request, 'signed_document_detail.html', {'doc' : document_ob})
