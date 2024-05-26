@@ -451,7 +451,6 @@ def sign_document_detail(request, id=None):
                     ['User', request.user.username],
                     ['File Name', file_name],
                     ['Is Signed', 'True'],
-                    ['Unique Identifier', hash_value],
                     ['IP Address', ip_address],
                     ['Operating System', os],
                     ['OS Version', os_version],
@@ -520,8 +519,8 @@ def signed_document_detail(request, id):
     try:
         if not request.user.is_superuser:
             document_ob = Document.objects.filter(is_signed=True, id=id, user=request.user)
-        elif request.user.is_superuser:
-            document_ob = Document.objects.get(id=id)
+        # elif request.user.is_superuser:
+        document_ob = Document.objects.get(id=id)
         return render(request, 'signed_document_detail.html', {'doc' : document_ob})
     except:
         messages.warning(request, 'Request is not responed please check your internet connection and try again!')
