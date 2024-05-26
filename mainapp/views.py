@@ -17,6 +17,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.pagesizes import landscape
 from tempfile import NamedTemporaryFile
 from io import BytesIO
+import hashlib
 import subprocess
 import base64
 import PyPDF2
@@ -428,11 +429,29 @@ def sign_document_detail(request, id=None):
                 signature_image_height = 50
                 signature_image = Image(signature_image_path, width=signature_image_width, height=signature_image_height)
                 file_name = document_ob.document_file.file.name.split('/')[-1]
+
+                sign = document_ob.signature_image.url.split('/')[-1]
+                metadata = {
+                    'ip_address': ip_address,
+                    'os': os,
+                    'os_version': os_version,
+                    'browser': browser,
+                    'browser_version': browser_version,
+                    'device': document_ob.device
+                }
+                sha512 = hashlib.sha512()
+                sha512.update(sign.encode('utf-8'))
+                sha512.update(file_name.encode('utf-8'))
+                for key, value in metadata.items():
+                    sha512.update(f"{key}:{value}".encode('utf-8'))
+                hash_value = sha512.hexdigest()
+
                 data = [
                     ['Signature', signature_image],
                     ['User', request.user.username],
                     ['File Name', file_name],
                     ['Is Signed', 'True'],
+                    ['Unique Identifier', hash_value],
                     ['IP Address', ip_address],
                     ['Operating System', os],
                     ['OS Version', os_version],
