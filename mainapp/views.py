@@ -520,7 +520,7 @@ def signed_document_detail(request, id):
         if request.user.is_superuser:
             document_ob = Document.objects.get(id=id)
         else:
-            document_ob = Document.objects.filter(id=id, user=request.user)
+            document_ob = Document.objects.filter(id=id).first()
         # elif request.user.is_superuser:
         return render(request, 'signed_document_detail.html', {'doc' : document_ob})
     except:
