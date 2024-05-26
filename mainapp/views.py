@@ -492,6 +492,7 @@ def sign_document_detail(request, id=None):
                     output_document_file = DocumentFile.objects.create()
                     output_document_file.file.save(f'signed_{request.user.username}_{file_name}', ContentFile(output_buffer.read()), save=True)
                     document_ob.signed_document = output_document_file
+                    document_ob.hash_value = hash_value
                     document_ob.save()
                     messages.success(request, 'Successfully Signed!')
                     return redirect('signed_document')

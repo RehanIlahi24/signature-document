@@ -53,6 +53,7 @@ class Document(models.Model):
 
     signature_image = models.ImageField(upload_to='signature_images/', null=True, blank=True)
 
+    hash_value = models.TextField(null=True, blank=True)
     ip_address = models.CharField(max_length=255, null=True, blank=True)
     os = models.CharField(max_length=255, null=True, blank=True)
     os_version = models.CharField(max_length=255, null=True, blank=True)

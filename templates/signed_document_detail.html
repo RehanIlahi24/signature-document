@@ -37,13 +37,15 @@
                         <td>{{ doc.document_file.file.name|get_filename }}</td>
                       </tr>
                       <tr>
-                        <tr>
-                          <td>Signed Document</td>
-                          <td>{{ doc.signed_document.file.name|get_filename }}</td>
-                        </tr>
-                        <tr>
+                        <td>Signed Document</td>
+                        <td>{{ doc.signed_document.file.name|get_filename }}</td>
+                      <tr>
                         <td>Is Signed</td>
                         <td>{{ doc.is_signed }}</td>
+                      </tr>
+                      <tr>
+                        <td>Unique Identifier</td>
+                        <td>{{ doc.hash_value }}</td>
                       </tr>
                       <tr>
                         <td>ip_address</td>
