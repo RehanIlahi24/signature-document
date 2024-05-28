@@ -15,10 +15,10 @@ def get_client_ip_address_test(request):
     x_forwarded_for_value = req_headers.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for_value:
         ip_addr = x_forwarded_for_value.split(',')[0].strip()
-    else:
-        ip_addr = req_headers.get('REMOTE_ADDR')
-    
+        return ip_addr
+    ip_addr = req_headers.get('REMOTE_ADDR')
     return ip_addr
+
 
 def pagination_custom(request,table):
     paginator = Paginator(table, 10)
