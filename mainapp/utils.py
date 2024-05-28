@@ -6,6 +6,20 @@ from django.conf import settings
 from django.core.mail import send_mail
 from dotenv import load_dotenv
 
+def get_client_ip_address_test(request):
+    req_headers = request.META
+
+    cf_connecting_ip = req_headers.get('HTTP_CF_CONNECTING_IP')
+    if cf_connecting_ip:
+        return cf_connecting_ip
+    x_forwarded_for_value = req_headers.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for_value:
+        ip_addr = x_forwarded_for_value.split(',')[0].strip()
+    else:
+        ip_addr = req_headers.get('REMOTE_ADDR')
+    
+    return ip_addr
+
 def pagination_custom(request,table):
     paginator = Paginator(table, 10)
     page = request.GET.get('page')
