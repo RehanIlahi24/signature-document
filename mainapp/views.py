@@ -28,9 +28,12 @@ import os
 def get_client_ip_address(request):
     req_headers = request.META
     x_forwarded_for_value = req_headers.get('HTTP_X_FORWARDED_FOR')
+    print('touple values : ', x_forwarded_for_value)
     if x_forwarded_for_value:
-        ip_addr = x_forwarded_for_value.split(',')[-1].strip()
+        print('if statement')
+        ip_addr = x_forwarded_for_value.split(',')[0]
     else:
+        print('else statement')
         ip_addr = req_headers.get('REMOTE_ADDR')
     return ip_addr
 
@@ -119,7 +122,7 @@ def user_logout(request):
 @login_required()
 def index(request):
     try:
-        print('user ip address :', get_client_ip_address_test(request))
+        print('user ip address :', get_client_ip_address(request))
         if request.user.is_superuser:
             total_users = User.objects.exclude(is_superuser=True).count()
             verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
