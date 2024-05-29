@@ -10,18 +10,22 @@ import logging
 def get_client_ip_address_test(request):
     req_headers = request.META
     logging.info("Request Headers: %s", req_headers)
+
     cf_connecting_ip = req_headers.get('HTTP_CF_CONNECTING_IP')
     if cf_connecting_ip:
         logging.info("Using CF-Connecting-IP: %s", cf_connecting_ip)
         return cf_connecting_ip
+
     x_forwarded_for_value = req_headers.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for_value:
         ip_addr = x_forwarded_for_value.split(',')[0].strip()
         logging.info("Using X-Forwarded-For: %s", ip_addr)
         return ip_addr
+
     ip_addr = req_headers.get('REMOTE_ADDR')
     logging.info("Using REMOTE_ADDR: %s", ip_addr)
     return ip_addr
+
 
 
 
