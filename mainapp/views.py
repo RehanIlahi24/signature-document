@@ -122,7 +122,7 @@ def user_logout(request):
 @login_required()
 def index(request):
     try:
-        print('user ip address :', get_client_ip_address_test(request))
+        print('user ip address :', get_client_ip_address(request))
         if request.user.is_superuser:
             total_users = User.objects.exclude(is_superuser=True).count()
             verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
