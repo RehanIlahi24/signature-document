@@ -28,6 +28,8 @@ import os
 def get_client_ip_address(request):
     req_headers = request.META
     x_forwarded_for_value = req_headers.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.META.get('HTTP_REMOTE_ADDR')
+    print('remote : ', x_forwarded_for)
     print('touple values : ', x_forwarded_for_value)
     if x_forwarded_for_value:
         print('if statement')
@@ -36,14 +38,6 @@ def get_client_ip_address(request):
         print('else statement')
         ip_addr = req_headers.get('REMOTE_ADDR')
     return ip_addr
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_REMOTE_ADDR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
 
 @ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
 def user_login(request):
@@ -131,9 +125,6 @@ def user_logout(request):
 def index(request):
     try:
         print('user ip address :', get_client_ip_address(request))
-        print('user ip address test:', get_client_ip_address_test(request))
-        print('user ip address client:', get_client_ip(request))
-
         if request.user.is_superuser:
             total_users = User.objects.exclude(is_superuser=True).count()
             verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
