@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'mainapp.middleware.IPAbuseCheckMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    'xff.middleware.XForwardedForMiddleware',
 ]
 
 ROOT_URLCONF = 'signature_document.urls'

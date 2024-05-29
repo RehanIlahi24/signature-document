@@ -37,6 +37,14 @@ def get_client_ip_address(request):
         ip_addr = req_headers.get('REMOTE_ADDR')
     return ip_addr
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_REMOTE_ADDR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
 @ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
 def user_login(request):
     ip_address = get_client_ip_address(request)
@@ -124,6 +132,8 @@ def index(request):
     try:
         print('user ip address :', get_client_ip_address(request))
         print('user ip address test:', get_client_ip_address_test(request))
+        print('user ip address client:', get_client_ip(request))
+
         if request.user.is_superuser:
             total_users = User.objects.exclude(is_superuser=True).count()
             verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
