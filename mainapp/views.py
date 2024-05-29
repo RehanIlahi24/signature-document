@@ -26,17 +26,14 @@ import os
 # Create your views here.
 
 def get_client_ip_address(request):
-    req_headers = request.META
-    x_forwarded_for_value = req_headers.get('HTTP_X_FORWARDED_FOR')
-    x_forwarded_for = request.META.get('REMOTE_ADDR')
-    print('remote : ', x_forwarded_for)
+    x_forwarded_for_value =  request.META.get('HTTP_X_FORWARDED_FOR')
     print('touple values : ', x_forwarded_for_value)
     if x_forwarded_for_value:
         print('if statement')
         ip_addr = x_forwarded_for_value.split(',')[0]
     else:
         print('else statement')
-        ip_addr = req_headers.get('REMOTE_ADDR')
+        ip_addr = request.META.get('REMOTE_ADDR')
     return ip_addr
 
 @ratelimit(key='ip', rate='10/m', method=['GET', 'POST'])
