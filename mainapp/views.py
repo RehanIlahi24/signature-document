@@ -27,12 +27,9 @@ import os
 
 def get_client_ip_address(request):
     x_forwarded_for_value =  request.META.get('HTTP_X_FORWARDED_FOR')
-    print('touple values : ', x_forwarded_for_value)
     if x_forwarded_for_value:
-        print('if statement')
         ip_addr = x_forwarded_for_value.split(',')[0]
     else:
-        print('else statement')
         ip_addr = request.META.get('REMOTE_ADDR')
     return ip_addr
 
