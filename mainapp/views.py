@@ -552,3 +552,5 @@ def download_pdf(request, document_id):
 # input_file = doc.document_file.file.path
 # output_file = "output11.pdf"
 # doc_to_pdf(input_file, output_file)
+
+print(User.objects.values())
