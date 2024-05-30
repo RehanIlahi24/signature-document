@@ -74,11 +74,11 @@ def signup_view(request):
         if not check_obj.exists():
             if password1 == password2:
                 hashed_password = make_password(password1)
-                user_ob = User.objects.create(passport_image=passport_image, password=hashed_password, username=username, first_name=first_name, last_name=last_name, email=email)
-                user_ob.is_active = True
-                user_ob.is_staff = True
-                user_ob.is_superuser = True
-                user_ob.save()
+                User.objects.create(passport_image=passport_image, password=hashed_password, username=username, first_name=first_name, last_name=last_name, email=email)
+                # user_ob.is_active = True
+                # user_ob.is_staff = True
+                # user_ob.is_superuser = True
+                # user_ob.save()
                 messages.success(request,"Successfully SignUp!")
                 return redirect('index')
             else:
