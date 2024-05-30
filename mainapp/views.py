@@ -544,7 +544,7 @@ def download_pdf(request, document_id):
 # print(Document.objects.prefetch_related('document_file').values('id', 'document_file__id' ,'document_file__file'))
 # User.objects.filter(is_superuser=False).delete()
 
-DocumentFile.objects.all().delete()
+# DocumentFile.objects.all().delete()
 # pdf_path = convert(doc.document_file.file.path, "output1.pdf")
 # print('path : ', pdf_path)
 # import win32com.client
