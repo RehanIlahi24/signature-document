@@ -40,6 +40,9 @@ class DocumentFile(models.Model):
         self.delete_file()
         super().delete(*args, **kwargs)
 
+class SignedDocumentFile(models.Model):
+    file = models.FileField(upload_to='signed_document_files/')
+
 class Document(models.Model):
     DEVICE_CHOICES = (
         ('Pc' , 'Pc'),
@@ -48,7 +51,7 @@ class Document(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     document_file = models.ForeignKey(DocumentFile, on_delete=models.CASCADE)
-    signed_document = models.ForeignKey(DocumentFile, on_delete=models.CASCADE, null=True, blank=True, related_name='signed_documents')
+    signed_document = models.ForeignKey(SignedDocumentFile, on_delete=models.CASCADE, null=True, blank=True, related_name='signed_documents')
     is_signed = models.BooleanField(default=False)
 
     signature_image = models.ImageField(upload_to='signature_images/', null=True, blank=True)

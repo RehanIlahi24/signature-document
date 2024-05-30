@@ -103,7 +103,7 @@ class DocumentTestCase(TestCase):
 
     def test_update_document_after_signature(self):
         document_file = DocumentFile.objects.create(file='test_file.pdf') #change file name to which one you have in your media.
-        signed_document_file = DocumentFile.objects.create(file='signed_test_file.pdf') #change file name to which one you have in your media.
+        signed_document_file = SignedDocumentFile.objects.create(file='signed_test_file.pdf') #change file name to which one you have in your media.
         document = Document.objects.create(user=self.user, document_file=document_file)
 
         document.signature_image = 'signature_images/test_signature.png' #change image name to which one you have in your media.

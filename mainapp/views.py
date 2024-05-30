@@ -259,8 +259,7 @@ def doc2pdf_linux(doc):
 def document_files(request):
     try:
         if request.user.is_superuser:
-            signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
-            docs = DocumentFile.objects.exclude(id__in=signed_document_ids).order_by('-id')
+            docs = DocumentFile.objects.all().order_by('-id')
             if request.method == "POST":
                 data = request.POST
                 type = data.get('type')
@@ -308,8 +307,7 @@ def document_files(request):
 def asign_document(request):
     try:
         if request.user.is_superuser:
-            signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
-            docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
+            docs = DocumentFile.objects.all().order_by('-id')
             doc_ob = Document.objects.all().order_by('-created_at')
             users = User.objects.all().exclude(is_superuser=True)
             if request.method == "POST":
@@ -320,7 +318,7 @@ def asign_document(request):
                     doc_ob = Document.objects.get(id=id)
                     if doc_ob.signed_document:
                         sign_doc_id = doc_ob.signed_document.id
-                        DocumentFile.objects.filter(id=sign_doc_id).first().delete()
+                        SignedDocumentFile.objects.filter(id=sign_doc_id).first().delete()
                     doc_ob.delete()
                     messages.success(request, 'Successfully Unasign File!')
                     return redirect('asign_document')
@@ -351,8 +349,7 @@ def asign_document(request):
 def asign_document_detail(request, id):
     try:
         if request.user.is_superuser:
-            signed_document_ids = Document.objects.values('signed_document__id').filter(signed_document__isnull=False)
-            docs = DocumentFile.objects.exclude(id__in=signed_document_ids)
+            docs = DocumentFile.objects.all().order_by('-id')
             users = User.objects.all().exclude(is_superuser=True)
             asign_doc_ob = Document.objects.get(id=id)
             if request.method == "POST":
@@ -492,7 +489,7 @@ def sign_document_detail(request, id=None):
                     output_buffer = BytesIO()
                     output_pdf.write(output_buffer)
                     output_buffer.seek(0)
-                    output_document_file = DocumentFile.objects.create()
+                    output_document_file = SignedDocumentFile.objects.create()
                     output_document_file.file.save(f'signed_{request.user.username}_{file_name}', ContentFile(output_buffer.read()), save=True)
                     document_ob.signed_document = output_document_file
                     document_ob.hash_value = hash_value
