@@ -533,7 +533,10 @@ def signed_document_detail(request, id):
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def download_pdf(request, document_id):
-    document = Document.objects.get(pk=document_id, user=request.user)
+    if request.user.is_superuser:
+        document = Document.objects.get(pk=document_id)
+    else:
+        document = Document.objects.get(pk=document_id, user=request.user)
     document_path = document.signed_document.file.path
     file_name = document.signed_document.file.name.split('/')[-1]
     with open(document_path, 'rb') as pdf_file:

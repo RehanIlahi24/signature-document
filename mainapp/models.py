@@ -40,8 +40,6 @@ class DocumentFile(models.Model):
         self.delete_file()
         super().delete(*args, **kwargs)
 
-# class DocumentFile(models.Model):
-#     file = models.FileField(upload_to='document_files/')
 class Document(models.Model):
     DEVICE_CHOICES = (
         ('Pc' , 'Pc'),
