@@ -61,4 +61,5 @@ def send_email_of_complete_signing(sender, instance, **kwargs):
         email_message.attach_file(signed_document_path)
 
         email_message.send()
+        print('email message send')
 
