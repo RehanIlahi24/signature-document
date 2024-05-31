@@ -137,8 +137,8 @@ LOGIN_URL='login'
 LOGIN_REDIRECT_URL='login'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'taylor.mxrouting.next'
-EMAIL_PORT = 587 
+EMAIL_HOST = 'taylor.mxrouting.net'
+EMAIL_PORT = 587  # Assuming the SMTP server uses port 587 for TLS
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'noreply@dyrevolution.com'
 EMAIL_HOST_PASSWORD = 'Pvemf4bQCLx7wsyJYdPA'
