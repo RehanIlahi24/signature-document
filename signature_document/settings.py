@@ -140,8 +140,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'noreply@dyrevolution.com'
-EMAIL_HOST_PASSWORD = 'Pvemf4bQCLx7wsyJYdPA'
+EMAIL_HOST_USER = 'dysign.dy@gmail.com'
+EMAIL_HOST_PASSWORD = 'iapp rctr fvwd iaxd'
 
 
 LOGGING = {
