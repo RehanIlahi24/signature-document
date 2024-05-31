@@ -8,6 +8,7 @@ from .models import *
 
 @receiver(post_save, sender=Document)
 def send_email_of_complete_signing(sender, instance, **kwargs):
+    print('signal called')
     if instance.is_signed == True:
         email = instance.user.email
         sign = instance.signature_image.url.split('/')[-1]
