@@ -141,7 +141,7 @@ EMAIL_HOST = 'taylor.mxrouting.net'
 EMAIL_PORT = 26
 EMAIL_USE_TLS = False
 EMAIL_HOST_USER = 'noreply@dyrevolution.com'
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_PASSWORD = 'Pvemf4bQCLx7wsyJYdPA'
 
 
 LOGGING = {
