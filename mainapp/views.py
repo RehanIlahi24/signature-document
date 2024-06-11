@@ -121,24 +121,24 @@ def user_logout(request):
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
 def index(request):
-    try:
-        print('user ip address :', get_client_ip_address(request))
-        if request.user.is_superuser:
-            total_users = User.objects.exclude(is_superuser=True).count()
-            verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
-            unverified_users = User.objects.filter(is_active=False, is_superuser=False).count()
-            total_asign_doc = Document.objects.all().count()
-            signed_doc = Document.objects.filter(is_signed=True).count()
-            today_signed_doc = Document.objects.filter(is_signed=True, created_at__date=date.today()).count()
-            return render(request, 'index.html', {'active' : 'active', 'total_users' : total_users, 'verified_users' : verified_users, 'unverified_users' : unverified_users, 'total_asign_doc' : total_asign_doc, 'signed_doc' : signed_doc, 'today_signed_doc' : today_signed_doc})
-        else:
-            today_asign_doc = Document.objects.filter(user=request.user, created_at__date=date.today()).count()
-            today_signed_doc = Document.objects.filter(user=request.user, is_signed=True, created_at__date=date.today()).count()
-            total_signed_doc = Document.objects.filter(user=request.user, is_signed=True).count()
-            return render(request, 'index.html', {'active' : 'active', 'today_asign_doc' : today_asign_doc, 'today_signed_doc' : today_signed_doc, 'total_signed_doc' : total_signed_doc})
-    except:
-        messages.warning(request, 'Request is not responed please check your internet connection and try again!')
-        return redirect('index')
+    # try:
+    print('user ip address :', get_client_ip_address(request))
+    if request.user.is_superuser:
+        total_users = User.objects.exclude(is_superuser=True).count()
+        verified_users = User.objects.filter(is_active=True, is_superuser=False).count()
+        unverified_users = User.objects.filter(is_active=False, is_superuser=False).count()
+        total_asign_doc = Document.objects.all().count()
+        signed_doc = Document.objects.filter(is_signed=True).count()
+        today_signed_doc = Document.objects.filter(is_signed=True, created_at__date=date.today()).count()
+        return render(request, 'index.html', {'active' : 'active', 'total_users' : total_users, 'verified_users' : verified_users, 'unverified_users' : unverified_users, 'total_asign_doc' : total_asign_doc, 'signed_doc' : signed_doc, 'today_signed_doc' : today_signed_doc})
+    else:
+        today_asign_doc = Document.objects.filter(user=request.user, created_at__date=date.today()).count()
+        today_signed_doc = Document.objects.filter(user=request.user, is_signed=True, created_at__date=date.today()).count()
+        total_signed_doc = Document.objects.filter(user=request.user, is_signed=True).count()
+        return render(request, 'index.html', {'active' : 'active', 'today_asign_doc' : today_asign_doc, 'today_signed_doc' : today_signed_doc, 'total_signed_doc' : total_signed_doc})
+    # except:
+    #     messages.warning(request, 'Request is not responed please check your internet connection and try again!')
+        # return redirect('index')
 
 @ratelimit(key='ip', rate='15/m', method=['GET', 'POST'])
 @login_required()
